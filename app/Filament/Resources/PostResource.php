@@ -46,7 +46,7 @@ class PostResource extends Resource
                             }),
                         TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(80)->columnSpan(4),
                         Textarea::make('excerpt')->rows(3)->maxLength(350)->columnSpan(12),
-                        RichEditor::make('body_html')->json(false)->columnSpan(12),
+                        RichEditor::make('body_html')->json(true)->columnSpan(12),
                     ]),
                 ]),
                 Tab::make('Meta')->schema([

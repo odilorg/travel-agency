@@ -60,7 +60,7 @@ class TourResource extends Resource
                                     ->rows(3)
                                     ->maxLength(350)
                                     ->columnSpan(12),
-                                RichEditor::make('description_html')->json(false)
+                                RichEditor::make('description_html')->json(true)
                                     ->columnSpan(12)
                                     ->toolbarButtons([
                                         'bold','italic','strike','underline','h2','h3','blockquote',
@@ -141,7 +141,7 @@ class TourResource extends Resource
                                     TextInput::make('day')->numeric()->minValue(0),
                                     TextInput::make('time'),
                                     TextInput::make('title'),
-                                    RichEditor::make('body_html')->json(false)->toolbarButtons([
+                                    RichEditor::make('body_html')->json(true)->toolbarButtons([
                                         'bold','italic','strike','underline','h3','blockquote',
                                         'orderedList','bulletList','link','undo','redo',
                                     ]),
@@ -153,7 +153,7 @@ class TourResource extends Resource
                                 ->relationship()
                                 ->schema([
                                     TextInput::make('question')->required(),
-                                    RichEditor::make('answer_html')->json(false)->toolbarButtons([
+                                    RichEditor::make('answer_html')->json(true)->toolbarButtons([
                                         'bold','italic','orderedList','bulletList','link',
                                     ]),
                                 ])->orderable('position')->collapsible()->grid(1),
