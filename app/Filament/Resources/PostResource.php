@@ -6,6 +6,15 @@ use App\Filament\Resources\PostResource\Pages;
 use App\Models\{Post, Category, Tag, User};
 use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\TextInput;
+use Filament\Schemas\Components\Textarea;
+use Filament\Schemas\Components\RichEditor;
+use Filament\Schemas\Components\Select;
+use Filament\Schemas\Components\Toggle;
+use Filament\Schemas\Components\DateTimePicker;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -25,37 +34,37 @@ class PostResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Forms\Components\Tabs::make('Tabs')->tabs([
-                Forms\Components\Tabs\Tab::make('Main')->schema([
-                    Forms\Components\Grid::make(12)->schema([
-                        Forms\Components\TextInput::make('title')->required()->columnSpan(8)
+            Tabs::make('Tabs')->tabs([
+                Tab::make('Main')->schema([
+                    Grid::make(12)->schema([
+                        TextInput::make('title')->required()->columnSpan(8)
                             ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, callable $set, $get) {
                                 if (blank($get('slug'))) {
                                     $set('slug', Str::slug($state));
                                 }
                             }),
-                        Forms\Components\TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(80)->columnSpan(4),
-                        Forms\Components\Textarea::make('excerpt')->rows(3)->maxLength(350)->columnSpan(12),
-                        Forms\Components\RichEditor::make('body_html')->columnSpan(12),
+                        TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(80)->columnSpan(4),
+                        Textarea::make('excerpt')->rows(3)->maxLength(350)->columnSpan(12),
+                        RichEditor::make('body_html')->columnSpan(12),
                     ]),
                 ]),
-                Forms\Components\Tabs\Tab::make('Meta')->schema([
-                    Forms\Components\Grid::make(12)->schema([
-                        Forms\Components\Select::make('author_id')->options(User::query()->pluck('name','id'))->searchable()->preload()->columnSpan(4),
-                        Forms\Components\Select::make('categories')->relationship('categories','name')->multiple()->preload()->columnSpan(4),
-                        Forms\Components\Select::make('tags')->relationship('tags','name')->multiple()->preload()->columnSpan(4),
+                Tab::make('Meta')->schema([
+                    Grid::make(12)->schema([
+                        Select::make('author_id')->options(User::query()->pluck('name','id'))->searchable()->preload()->columnSpan(4),
+                        Select::make('categories')->relationship('categories','name')->multiple()->preload()->columnSpan(4),
+                        Select::make('tags')->relationship('tags','name')->multiple()->preload()->columnSpan(4),
                     ]),
                 ]),
-                Forms\Components\Tabs\Tab::make('SEO')->schema([
-                    Forms\Components\TextInput::make('meta_title')->maxLength(70),
-                    Forms\Components\TextInput::make('meta_description')->maxLength(180),
-                    Forms\Components\TextInput::make('canonical_url')->url(),
-                    Forms\Components\Toggle::make('noindex'),
+                Tab::make('SEO')->schema([
+                    TextInput::make('meta_title')->maxLength(70),
+                    TextInput::make('meta_description')->maxLength(180),
+                    TextInput::make('canonical_url')->url(),
+                    Toggle::make('noindex'),
                 ]),
-                Forms\Components\Tabs\Tab::make('Publishing')->schema([
-                    Forms\Components\Select::make('status')->options(['draft'=>'Draft','published'=>'Published','archived'=>'Archived'])->required(),
-                    Forms\Components\DateTimePicker::make('published_at'),
+                Tab::make('Publishing')->schema([
+                    Select::make('status')->options(['draft'=>'Draft','published'=>'Published','archived'=>'Archived'])->required(),
+                    DateTimePicker::make('published_at'),
                 ]),
             ])->columnSpanFull(),
         ]);
