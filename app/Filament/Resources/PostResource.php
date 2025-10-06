@@ -9,6 +9,9 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Support\Str;
 
 class PostResource extends Resource
@@ -73,9 +76,10 @@ class PostResource extends Resource
             Tables\Columns\TextColumn::make('published_at')->dateTime()->since()->sortable(),
         ])->filters([
             Tables\Filters\SelectFilter::make('status')->options(['draft'=>'Draft','published'=>'Published','archived'=>'Archived']),
-        ])->actions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
+        ])->recordActions([
+            ViewAction::make(),
+            EditAction::make(),
+            DeleteAction::make(),
         ])->bulkActions([
             Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()]),
         ]);
