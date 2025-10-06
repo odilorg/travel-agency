@@ -40,7 +40,7 @@ class TagResource extends Resource
         return $table->columns([
             Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
             Tables\Columns\TextColumn::make('slug'),
-        ])->actions([
+        ])->recordActions([
             Tables\Actions\EditAction::make(),
             Tables\Actions\DeleteAction::make(),
         ]);

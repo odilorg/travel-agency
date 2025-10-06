@@ -38,7 +38,7 @@ class RedirectResource extends Resource
             Tables\Columns\TextColumn::make('from')->searchable()->limit(60),
             Tables\Columns\TextColumn::make('to')->limit(60),
             Tables\Columns\TextColumn::make('http_status'),
-        ])->actions([
+        ])->recordActions([
             Tables\Actions\EditAction::make(),
             Tables\Actions\DeleteAction::make(),
         ]);

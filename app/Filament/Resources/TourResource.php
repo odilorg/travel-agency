@@ -189,8 +189,7 @@ class TourResource extends Resource
                     ->options(['draft'=>'Draft','published'=>'Published','archived'=>'Archived']),
                 Tables\Filters\TernaryFilter::make('is_featured')->label('Featured'),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
+            ->recordActions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

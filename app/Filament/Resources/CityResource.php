@@ -44,7 +44,7 @@ class CityResource extends Resource
             Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
             Tables\Columns\TextColumn::make('slug'),
             Tables\Columns\TextColumn::make('country_code'),
-        ])->actions([
+        ])->recordActions([
             Tables\Actions\EditAction::make(),
             Tables\Actions\DeleteAction::make(),
         ]);

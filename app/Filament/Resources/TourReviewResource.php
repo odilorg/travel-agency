@@ -53,7 +53,7 @@ class TourReviewResource extends Resource
         ])->filters([
             Tables\Filters\TernaryFilter::make('approved'),
             Tables\Filters\TernaryFilter::make('verified_booking'),
-        ])->actions([
+        ])->recordActions([
             Tables\Actions\EditAction::make(),
             Tables\Actions\DeleteAction::make(),
         ])->bulkActions([
