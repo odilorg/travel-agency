@@ -6,6 +6,17 @@ use App\Filament\Resources\TourResource\Pages;
 use App\Models\{Tour, City, Category, Tag};
 use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select as FormSelect;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -27,11 +38,11 @@ class TourResource extends Resource
     {
         return $schema
             ->components([
-                Forms\Components\Tabs::make('Tabs')
+                Tabs::make('Tabs')
                     ->tabs([
-                        Forms\Components\Tabs\Tab::make('Main')->schema([
-                            Forms\Components\Grid::make(12)->schema([
-                                Forms\Components\TextInput::make('title')
+                        Tab::make('Main')->schema([
+                            Grid::make(12)->schema([
+                                TextInput::make('title')
                                     ->required()
                                     ->columnSpan(8)
                                     ->live(onBlur: true)
@@ -40,16 +51,16 @@ class TourResource extends Resource
                                             $set('slug', Str::slug($state));
                                         }
                                     }),
-                                Forms\Components\TextInput::make('slug')
+                                TextInput::make('slug')
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(80)
                                     ->columnSpan(4),
-                                Forms\Components\Textarea::make('excerpt')
+                                Textarea::make('excerpt')
                                     ->rows(3)
                                     ->maxLength(350)
                                     ->columnSpan(12),
-                                Forms\Components\RichEditor::make('description_html')
+                                RichEditor::make('description_html')
                                     ->columnSpan(12)
                                     ->toolbarButtons([
                                         'bold','italic','strike','underline','h2','h3','blockquote',
@@ -58,111 +69,111 @@ class TourResource extends Resource
                             ]),
                         ]),
 
-                        Forms\Components\Tabs\Tab::make('Details')->schema([
-                            Forms\Components\Grid::make(12)->schema([
-                                Forms\Components\TextInput::make('duration_days')->numeric()->minValue(0)->columnSpan(2),
-                                Forms\Components\TextInput::make('duration_nights')->numeric()->minValue(0)->columnSpan(2),
-                                Forms\Components\TextInput::make('price_from')->numeric()->prefix('$')->columnSpan(3),
-                                Forms\Components\TextInput::make('currency')->default('USD')->maxLength(3)->columnSpan(2),
-                                Forms\Components\Select::make('city_id')
+                        Tab::make('Details')->schema([
+                            Grid::make(12)->schema([
+                                TextInput::make('duration_days')->numeric()->minValue(0)->columnSpan(2),
+                                TextInput::make('duration_nights')->numeric()->minValue(0)->columnSpan(2),
+                                TextInput::make('price_from')->numeric()->prefix('$')->columnSpan(3),
+                                TextInput::make('currency')->default('USD')->maxLength(3)->columnSpan(2),
+                                FormSelect::make('city_id')
                                     ->label('City')
                                     ->options(City::query()->pluck('name','id'))
                                     ->searchable()
                                     ->preload()
                                     ->columnSpan(3),
-                                Forms\Components\Select::make('difficulty')
+                                FormSelect::make('difficulty')
                                     ->options(['easy'=>'Easy','moderate'=>'Moderate','hard'=>'Hard'])
                                     ->columnSpan(3),
-                                Forms\Components\Toggle::make('is_featured')->columnSpan(2),
-                                Forms\Components\TextInput::make('latitude')->numeric()->columnSpan(2),
-                                Forms\Components\TextInput::make('longitude')->numeric()->columnSpan(2),
-                                Forms\Components\Select::make('categories')
+                                Toggle::make('is_featured')->columnSpan(2),
+                                TextInput::make('latitude')->numeric()->columnSpan(2),
+                                TextInput::make('longitude')->numeric()->columnSpan(2),
+                                FormSelect::make('categories')
                                     ->relationship('categories','name')
                                     ->multiple()->preload()->searchable()
                                     ->columnSpan(6),
-                                Forms\Components\Select::make('tags')
+                                FormSelect::make('tags')
                                     ->relationship('tags','name')
                                     ->multiple()->preload()->searchable()
                                     ->columnSpan(6),
                             ]),
                         ]),
 
-                        Forms\Components\Tabs\Tab::make('Pricing')->schema([
-                            Forms\Components\Repeater::make('priceOptions')
+                        Tab::make('Pricing')->schema([
+                            Repeater::make('priceOptions')
                                 ->relationship()
                                 ->schema([
-                                    Forms\Components\TextInput::make('name')->required(),
-                                    Forms\Components\TextInput::make('price')->numeric()->required(),
-                                    Forms\Components\TextInput::make('currency')->maxLength(3)->default('USD'),
-                                    Forms\Components\TextInput::make('min_pax')->numeric()->minValue(1),
-                                    Forms\Components\TextInput::make('max_pax')->numeric()->minValue(1),
-                                    Forms\Components\Toggle::make('is_active')->default(true),
+                                    TextInput::make('name')->required(),
+                                    TextInput::make('price')->numeric()->required(),
+                                    TextInput::make('currency')->maxLength(3)->default('USD'),
+                                    TextInput::make('min_pax')->numeric()->minValue(1),
+                                    TextInput::make('max_pax')->numeric()->minValue(1),
+                                    Toggle::make('is_active')->default(true),
                                 ])->orderable('position')->collapsible()->grid(2),
-                            Forms\Components\Repeater::make('extras')
+                            Repeater::make('extras')
                                 ->relationship()
                                 ->schema([
-                                    Forms\Components\TextInput::make('label')->required(),
-                                    Forms\Components\Textarea::make('description')->rows(2),
-                                    Forms\Components\TextInput::make('price')->numeric(),
-                                    Forms\Components\Toggle::make('per_person')->default(false),
+                                    TextInput::make('label')->required(),
+                                    Textarea::make('description')->rows(2),
+                                    TextInput::make('price')->numeric(),
+                                    Toggle::make('per_person')->default(false),
                                 ])->orderable('position')->collapsible()->grid(2),
                         ]),
 
-                        Forms\Components\Tabs\Tab::make('Highlights')->schema([
-                            Forms\Components\Repeater::make('highlights')
+                        Tab::make('Highlights')->schema([
+                            Repeater::make('highlights')
                                 ->relationship()->schema([
-                                    Forms\Components\TextInput::make('label')->required(),
+                                    TextInput::make('label')->required(),
                                 ])->orderable('position')->columns(1),
-                            Forms\Components\Repeater::make('inclusions')
+                            Repeater::make('inclusions')
                                 ->relationship()->schema([
-                                    Forms\Components\TextInput::make('label')->required(),
+                                    TextInput::make('label')->required(),
                                 ])->orderable('position')->columns(1),
-                            Forms\Components\Repeater::make('exclusions')
+                            Repeater::make('exclusions')
                                 ->relationship()->schema([
-                                    Forms\Components\TextInput::make('label')->required(),
+                                    TextInput::make('label')->required(),
                                 ])->orderable('position')->columns(1),
                         ]),
 
-                        Forms\Components\Tabs\Tab::make('Itinerary')->schema([
-                            Forms\Components\Repeater::make('itineraryItems')
+                        Tab::make('Itinerary')->schema([
+                            Repeater::make('itineraryItems')
                                 ->relationship()
                                 ->schema([
-                                    Forms\Components\TextInput::make('day')->numeric()->minValue(0),
-                                    Forms\Components\TextInput::make('time'),
-                                    Forms\Components\TextInput::make('title'),
-                                    Forms\Components\RichEditor::make('body_html')->toolbarButtons([
+                                    TextInput::make('day')->numeric()->minValue(0),
+                                    TextInput::make('time'),
+                                    TextInput::make('title'),
+                                    RichEditor::make('body_html')->toolbarButtons([
                                         'bold','italic','strike','underline','h3','blockquote',
                                         'orderedList','bulletList','link','undo','redo',
                                     ]),
                                 ])->orderable('position')->collapsible()->grid(1),
                         ]),
 
-                        Forms\Components\Tabs\Tab::make('FAQs')->schema([
-                            Forms\Components\Repeater::make('faqs')
+                        Tab::make('FAQs')->schema([
+                            Repeater::make('faqs')
                                 ->relationship()
                                 ->schema([
-                                    Forms\Components\TextInput::make('question')->required(),
-                                    Forms\Components\RichEditor::make('answer_html')->toolbarButtons([
+                                    TextInput::make('question')->required(),
+                                    RichEditor::make('answer_html')->toolbarButtons([
                                         'bold','italic','orderedList','bulletList','link',
                                     ]),
                                 ])->orderable('position')->collapsible()->grid(1),
                         ]),
 
-                        Forms\Components\Tabs\Tab::make('SEO')->schema([
-                            Forms\Components\TextInput::make('meta_title')->maxLength(70)
+                        Tab::make('SEO')->schema([
+                            TextInput::make('meta_title')->maxLength(70)
                                 ->helperText('Max ~60–70 chars'),
-                            Forms\Components\TextInput::make('meta_description')->maxLength(180)
+                            TextInput::make('meta_description')->maxLength(180)
                                 ->helperText('Max ~150–180 chars'),
-                            Forms\Components\TextInput::make('canonical_url')->url(),
-                            Forms\Components\Toggle::make('noindex')->inline(false),
-                            Forms\Components\Toggle::make('notranslate')->inline(false),
+                            TextInput::make('canonical_url')->url(),
+                            Toggle::make('noindex')->inline(false),
+                            Toggle::make('notranslate')->inline(false),
                         ]),
 
-                        Forms\Components\Tabs\Tab::make('Publishing')->schema([
-                            Forms\Components\Select::make('status')
+                        Tab::make('Publishing')->schema([
+                            FormSelect::make('status')
                                 ->options(['draft'=>'Draft','published'=>'Published','archived'=>'Archived'])
                                 ->required(),
-                            Forms\Components\DateTimePicker::make('published_at'),
+                            DateTimePicker::make('published_at'),
                         ]),
                     ])->columnSpanFull(),
             ]);
