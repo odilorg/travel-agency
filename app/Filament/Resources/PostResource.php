@@ -11,6 +11,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Illuminate\Support\Str;
 
 class PostResource extends Resource
@@ -79,7 +81,7 @@ class PostResource extends Resource
             EditAction::make(),
             DeleteAction::make(),
         ])->bulkActions([
-            Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()]),
+            BulkActionGroup::make([DeleteBulkAction::make()]),
         ]);
     }
 
