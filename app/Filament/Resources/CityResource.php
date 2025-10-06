@@ -9,6 +9,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
 use Illuminate\Support\Str;
 
 class CityResource extends Resource
@@ -45,8 +47,8 @@ class CityResource extends Resource
             Tables\Columns\TextColumn::make('slug'),
             Tables\Columns\TextColumn::make('country_code'),
         ])->recordActions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
+            EditAction::make(),
+            DeleteAction::make(),
         ]);
     }
 

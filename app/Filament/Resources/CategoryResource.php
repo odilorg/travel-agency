@@ -9,6 +9,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
 use Illuminate\Support\Str;
 
 class CategoryResource extends Resource
@@ -43,8 +45,8 @@ class CategoryResource extends Resource
             Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
             Tables\Columns\TextColumn::make('slug')->toggleable(),
         ])->recordActions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
+            EditAction::make(),
+            DeleteAction::make(),
         ]);
     }
 

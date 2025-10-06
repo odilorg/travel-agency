@@ -9,6 +9,8 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
 
 class RedirectResource extends Resource
 {
@@ -39,8 +41,8 @@ class RedirectResource extends Resource
             Tables\Columns\TextColumn::make('to')->limit(60),
             Tables\Columns\TextColumn::make('http_status'),
         ])->recordActions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
+            EditAction::make(),
+            DeleteAction::make(),
         ]);
     }
 
