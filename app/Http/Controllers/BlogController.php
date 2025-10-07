@@ -9,6 +9,41 @@ use Illuminate\Http\Request;
 
 class BlogController extends Controller
 {
+    /**
+     * Blog index (archive) with basic filtering and pagination
+     */
+    public function index(Request $request)
+    {
+        $query = Post::query()
+            ->with(['author','categories','tags','media'])
+            ->where('status','published');
+
+        if ($cat = $request->get('category')) {
+            $query->whereHas('categories', fn($q) => $q->where('slug',$cat));
+        }
+        if ($tag = $request->get('tag')) {
+            $query->whereHas('tags', fn($q) => $q->where('slug',$tag));
+        }
+        if ($q = trim((string)$request->get('q',''))) {
+            $query->where(function($sub) use ($q){
+                $sub->where('title','like','%'.$q.'%')
+                    ->orWhere('excerpt','like','%'.$q.'%')
+                    ->orWhere('body_html','like','%'.$q.'%');
+            });
+        }
+
+        $sort = (string)$request->get('sort','new');
+        match ($sort) {
+            'popular' => $query->orderByDesc('published_at')->orderByDesc('id'),
+            default => $query->orderByDesc('published_at'),
+        };
+
+        $posts = $query->paginate(9)->withQueryString();
+
+        $metaData = $this->metaService->compose(title: 'Blog — '.config('app.name'));
+
+        return view('blog.index', compact('posts','metaData'));
+    }
     public function __construct(
         protected MetaService $metaService,
         protected SchemaService $schemaService

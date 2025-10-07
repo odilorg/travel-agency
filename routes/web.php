@@ -7,10 +7,8 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
 // (duplicate import removed)
 
-// Home
-Route::get('/', function () {
-    return view('home.index');
-})->name('home');
+// Home → use Tours archive
+Route::get('/', [ListingController::class, 'index'])->name('home');
 
 // Tour Listings & Search
 Route::get('/tours', [ListingController::class, 'index'])->name('tours.index');
@@ -22,9 +20,7 @@ Route::get('/tours/search', [ListingController::class, 'search'])->name('tours.s
 Route::get('/tours/{slug}', [TourController::class, 'show'])->name('tours.show');
 
 // Blog
-Route::get('/blog', function () {
-    return view('blog.index');
-})->name('blog.index');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 

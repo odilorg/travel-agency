@@ -12,83 +12,12 @@
             <div class="close-menu-toggle lg:hidden absolute top-2.5 right-2.5">
                 <span class="iconify" data-icon="ic:sharp-clear" data-width="22" data-height="22"></span>
             </div>
-            <ul class="flex justify-center lg:gap-4 xl:gap-10 text-base font-semibold text-black">
-                <li class="relative inline-block group w-full nav-father">
-                    <div class="flex items-center justify-between lg:justify-normal gap-1 cursor-pointer">
-                        <a href="{{ route('home') }}" class="transition-all duration-200 hover:text-green-zomp">Home</a>
-                        <span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
-                    </div>
-                    <div class="nav-wrapper lg:absolute lg:p-5 lg:w-60 lg:left-0 lg:top-7.5 bg-white lg:shadow-custom lg:rounded-custom lg:opacity-0 lg:invisible lg:transition-all lg:group-hover:opacity-100 lg:group-hover:visible z-[999]">
-                        <ul class="nav-menu">
-                            <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('home') }}">Home</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-
-                <li class="relative inline-block group w-full nav-father">
-                    <div class="flex items-center justify-between lg:justify-normal gap-1 cursor-pointer">
-                        <a href="#" class="transition-all duration-200 hover:text-green-zomp">Tours</a>
-                        <span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
-                    </div>
-                    <div class="nav-wrapper lg:absolute lg:p-5 lg:w-60 lg:left-0 lg:top-7.5 bg-white lg:shadow-custom lg:rounded-custom lg:opacity-0 lg:invisible lg:transition-all lg:group-hover:opacity-100 lg:group-hover:visible z-[999]">
-                        <ul class="nav-menu">
-                            <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('tours.index') }}">All Tours</a>
-                            </li>
-                            <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('tours.search') }}?featured=1">Featured Tours</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-
-                <li class="relative inline-block group w-full nav-father">
-                    <div class="flex items-center justify-between lg:justify-normal gap-1 cursor-pointer">
-                        <a href="#" class="transition-all duration-200 hover:text-green-zomp">Destination</a>
-                        <span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
-                    </div>
-                    <div class="nav-wrapper lg:absolute lg:p-5 lg:w-60 lg:left-0 lg:top-7.5 bg-white lg:shadow-custom lg:rounded-custom lg:opacity-0 lg:invisible lg:transition-all lg:group-hover:opacity-100 lg:group-hover:visible z-[999]">
-                        <ul class="nav-menu">
-                            @foreach(\App\Models\City::take(5)->get() as $city)
-                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                    <a href="{{ route('tours.index') }}?city={{ $city->slug }}">{{ $city->name }}</a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </li>
-
-                <li>
-                    <a href="{{ route('tours.index') }}?deals=1" class="transition-all duration-200 hover:text-green-zomp">Deals</a>
-                </li>
-
-                <li class="relative inline-block group w-full nav-father">
-                    <div class="flex items-center justify-between lg:justify-normal gap-1 cursor-pointer">
-                        <a href="#" class="transition-all duration-200 hover:text-green-zomp">Pages</a>
-                        <span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
-                    </div>
-                    <div class="nav-wrapper lg:absolute lg:p-5 lg:w-60 lg:left-0 lg:top-7.5 bg-white lg:shadow-custom lg:rounded-custom lg:opacity-0 lg:invisible lg:transition-all lg:group-hover:opacity-100 lg:group-hover:visible z-[999]">
-                        <ul class="nav-menu">
-                            <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('blog.index') }}">Blog</a>
-                            </li>
-                            <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('about') }}">About Us</a>
-                            </li>
-                            <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('contact') }}">Contact Us</a>
-                            </li>
-                            <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="#">FAQs</a>
-                            </li>
-                            <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('gallery') }}">Gallery</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+            <ul class="flex items-center gap-6 text-base font-semibold">
+                <li><a href="{{ route('home') }}" class="text-black transition-all duration-200 hover:text-green-zomp">Home</a></li>
+                <li><a href="{{ route('tours.index') }}" class="text-black transition-all duration-200 hover:text-green-zomp">Tours</a></li>
+                <li><a href="{{ route('blog.index') }}" class="text-black transition-all duration-200 hover:text-green-zomp">Blog</a></li>
+                <li><a href="{{ route('about') }}" class="text-black transition-all duration-200 hover:text-green-zomp">About</a></li>
+                <li><a href="{{ route('contact') }}" class="text-black transition-all duration-200 hover:text-green-zomp">Contact</a></li>
             </ul>
         </nav>
 
