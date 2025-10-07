@@ -10,19 +10,4 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
-    resolve: {
-        alias: {
-            'swiper': 'swiper/bundle',
-            'fancybox': '@fancyapps/ui/dist/fancybox',
-        }
-    },
-    build: {
-        rollupOptions: {
-            output: {
-                manualChunks: {
-                    'vendor': ['swiper', '@fancyapps/ui', 'masonry-layout', 'nouislider']
-                }
-            }
-        }
-    }
 });

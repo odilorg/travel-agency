@@ -23,6 +23,10 @@
         @endforeach
     @endif
     
+    {{-- Template CSS First --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/tailwind83a7.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style83a7.css') }}">
+    
     {{-- Vite Assets --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
