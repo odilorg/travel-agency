@@ -18,7 +18,7 @@ class Tour extends Model implements HasMedia
     protected $fillable = [
         'title','title_translations','slug','excerpt','excerpt_translations',
         'description_html','description_html_translations','duration_days','duration_nights',
-        'price_from','currency','city_id','difficulty','is_featured','status','published_at',
+        'price_from','currency','city_id','destination_id','difficulty','is_featured','status','published_at',
         'latitude','longitude','avg_rating','reviews_count','meta_title','meta_title_translations',
         'meta_description','meta_description_translations','canonical_url','noindex','notranslate',
     ];
@@ -82,6 +82,11 @@ class Tour extends Model implements HasMedia
     public function city()
     {
         return $this->belongsTo(City::class);
+    }
+
+    public function destination()
+    {
+        return $this->belongsTo(Destination::class);
     }
 
     public function categories()

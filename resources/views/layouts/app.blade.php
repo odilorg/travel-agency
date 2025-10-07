@@ -23,15 +23,39 @@
         @endforeach
     @endif
     
-    {{-- Template CSS First --}}
+    {{-- Template CSS --}}
     <link rel="stylesheet" href="{{ asset('assets/css/tailwind83a7.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style83a7.css') }}">
-    
-    {{-- Vite Assets --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
+    {{-- Google Fonts - Urbanist --}}
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+
     {{-- Iconify for icons --}}
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+
+    {{-- Swiper --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    {{-- Masonry --}}
+    <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+
+    {{-- Fancybox --}}
+    <link href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+
+    {{-- NoUiSlider --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.css">
+
+    {{-- jQuery (Required by Daterangepicker and Template) --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    {{-- Moment.js --}}
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+    {{-- Daterangepicker --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     
     {{-- Additional head content --}}
     @stack('head')
@@ -55,7 +79,14 @@
         <span class="iconify" style="color:#fff;" data-icon="ic:baseline-whatsapp" data-width="34" data-height="34"></span>
     </a>
 
-    {{-- Scripts --}}
+    {{-- Template Scripts (End of Body) --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.js"></script>
+    <script src="{{ asset('assets/js/main.min83a7.js') }}"></script>
+
+    {{-- Vite App Bundle (Custom additions after template) --}}
+    @vite(['resources/js/app.js'])
+
+    {{-- Page-specific Scripts --}}
     @stack('scripts')
 </body>
 </html>

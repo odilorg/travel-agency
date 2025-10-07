@@ -1,0 +1,234 @@
+
+Destination Page (tour-destination.html) → Laravel + Filament Frontend
+=====================================================================
+(Implementation plan + AI coder prompt)
+
+Source Reference
+----------------
+Based on uploaded template: tour-destination.html. fileciteturn2file0
+
+
+I) Page Purpose & URL Design
+----------------------------
+Goal: Render a single **Destination** (e.g., “Nha Trang / Bali”) with: hero/breadcrumb, banner with quick facts, intro + image, seasonal activities accordion, “Must‑Know & Facts” slider, paginated “Tours & Experiences” grid (filtered to destination), and a “Top Destination” carousel.
+
+Permalinks (EN, USD only for now):
+- Destination index: `/destinations`
+- Destination detail: `/destinations/{destination:slug}`  (e.g., `/destinations/bali`)
+
+Canonical & SEO:
+- Canonical: current URL
+- Robots: index,follow (toggle via model)
+- JSON‑LD: `BreadcrumbList`, `ItemList` (for tours), `Place` (City) or `TouristDestination` (if you prefer)
+- OpenGraph: title, description, hero/banner image
+
+
+II) Data Model (DB-first; Filament CRUD later)
+----------------------------------------------
+New table: `destinations`
+- id (PK)
+- name (string, required, unique)
+- slug (string, unique, indexed)
+- excerpt (text, nullable) — short intro under H1
+- description_html (longtext, nullable) — rich intro/“history” block
+- banner_image_id (media) — background banner in first hero block
+- facts (jsonb) — { language, currency, religion, timezone } (string values)
+- is_featured (boolean, default false) — for “Top Destinations” carousel
+- meta_title (string, nullable)
+- meta_description (text, nullable)
+- canonical_url (string, nullable)
+- noindex (boolean, default false)
+- published_at (datetime, nullable)
+- status (enum: draft/published), default draft
+- created_at/updated_at
+
+Media (Spatie):
+- Collection `banner` (single) — used for top banner background
+- Collection `gallery` — optional (for intro/other sections)
+
+“Seasonal Activities” (accordion) — 2 options:
+1) Separate table `destination_activities`:
+   - destination_id (FK), title, brief_html, sort_order
+2) Or store in a `blocks` JSON on destinations (repeatable set). Option 1 is simpler for Filament.
+
+“Must‑Know & Facts” slider — 2 options:
+1) Table `destination_items`:
+   - destination_id (FK), title, body_html, image (media), url (nullable), sort_order
+2) Or reuse blog/posts tagged to the destination. Option 1 matches the static template closely.
+
+Relations to Tours:
+- `tours` table already has `city_id` OR add `destination_id` FK (preferred for clarity).
+- A Tour belongsTo Destination. Destination hasMany Tours.
+
+
+III) Routes & Controller
+------------------------
+`routes/web.php`
+- `Route::get('/destinations', [DestinationController::class, 'index'])->name('destinations.index');`
+- `Route::get('/destinations/{destination:slug}', [DestinationController::class, 'show'])->name('destinations.show');`
+
+`app/Http/Controllers/DestinationController.php`
+- `index()` — list featured/all destinations (grid) with search.
+- `show(Destination $destination)` — eager-load:
+  - `activities`, `items` (must‑know slider items), `tours` (published), and media (`banner`, `gallery`).
+  - Compose `$metaData = MetaService->compose(...)` or `->forDestination($destination)` helper.
+  - Build `$breadcrumbJson = SchemaService->breadcrumb([...])`.
+  - Build `$tours = $destination->tours()->where('status','published')->with(['categories','tags','city'])->paginate(12);`
+  - Build `$topDestinations = Destination::where('is_featured', true)->where('id', '!=', $destination->id)->take(10)->get();`
+
+
+IV) Blade View Mapping (keep HTML 1:1)
+-------------------------------------
+Create view: `resources/views/destinations/show.blade.php` and copy markup from tour-destination.html. Replace only dynamic spots (marked below).
+
+1) Header + Breadcrumb + Heading
+- Breadcrumb: use partial `_breadcrumbs.blade.php` with items: Home → Destinations → {{ $destination->name }}
+- H1: `{{ $destination->name }}`
+- Subheading/excerpt sotto voce: `{{ $destination->excerpt }}`
+
+2) Banner with Quick Facts (background image + 4 pills)
+- Wrapper background: inline style or utility classes with `style="background-image:url('{{ $destination->getFirstMediaUrl('banner') ?? '/assets/images/destination-banner.png' }}')"`
+- Fact pills:
+  - Language: `{{ data_get($destination->facts,'language','English') }}`
+  - Currency: `{{ data_get($destination->facts,'currency','USD') }}`
+  - Religion: `{{ data_get($destination->facts,'religion','—') }}`
+  - Timezone: `{{ data_get($destination->facts,'timezone','UTC') }}`
+- Add `aria-label` to this facts bar for screen readers.
+
+3) “History/Intro” two-column section
+- Left column title and rich text (`$destination->description_html`); optional pre-title text stored in `excerpt` or a field `intro_kicker` if needed.
+- Right column image from `gallery` first item or fallback `/assets/images/destination-01.png`.
+
+4) “Seasonal Activities” accordion (three items in template)
+- Loop: `$destination->activities` as items.
+- Title: `{{ $item->title }}`
+- Body: `{!! $item->brief_html !!}`
+- Keep classes and the toggle icon; add `aria-controls`, `aria-expanded` attributes for a11y.
+- Add JS hook in `init.js` to allow open/close (if not already present in template script).
+
+5) “Bali – Must Know & Facts” slider
+- Swiper root class: keep `must-know-swiper` and pagination class from template.
+- Loop: `$destination->items` (image, title, body, “More info” URL optional).
+- Image: from media conversion (e.g., `getFirstMediaUrl('items','gallery')`) or fallback `/assets/images/destination-03.png`.
+- Title/Body/URL bound as in template.
+- Initiate Swiper in `resources/js/init.js` guarded by DOM presence.
+
+6) “Tours & Experiences” grid (cards)
+- Replace hard-coded 12 cards with a loop over `$tours` (paginated).
+- For each tour: reuse `components/tour-card.blade.php` to keep consistency.
+- Ensure category badges (`Featured`, `Best seller`, tags) map to tour categories/tags.
+- Replace old pagination HTML with `{{ $tours->links() }}` but **preserve** template styling via `tailwind/views/vendor/pagination` customization if needed.
+
+7) “Top Destination For Your Next Vacation” carousel
+- Source: `$topDestinations` (featured destinations), excluding current.
+- Each slide uses `name`, short description (excerpt) and banner image.
+- “See all tours” button links to `route('tours.index', ['destination' => $destination->slug])` or `route('destinations.show', $destinationChild)` if the CTA is to child‑destinations.
+
+8) Scripts & JSON‑LD
+- Push breadcrumb JSON‑LD and destination JSON‑LD at `@push('scripts')`.
+- Add `ItemList` for the paginated tours (first page only to avoid spam).
+
+
+V) Services: Meta + Schema
+--------------------------
+MetaService (extend):
+```php
+public function forDestination(Destination $d): array {
+  return $this->compose(
+    title: $d->meta_title ?: $d->name.' — '.config('app.name'),
+    description: $d->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($d->excerpt ?: $d->description_html), 160),
+    canonical: $d->canonical_url ?: url()->current(),
+    og: ['og:image' => $d->getFirstMediaUrl('banner')],
+    robots: ['index' => !$d->noindex, 'follow' => true]
+  );
+}
+```
+
+SchemaService helpers (example):
+- `breadcrumb()` already exists.
+- Add `destination()` if desired (or use `Place`):
+```php
+public function destination(array $data): array {
+  return [
+    '@context' => 'https://schema.org',
+    '@type' => 'Place',
+    'name' => $data['name'] ?? null,
+    'image' => $data['image'] ?? null,
+    'description' => $data['description'] ?? null,
+    'address' => ['@type'=>'PostalAddress','addressCountry'=>$data['country'] ?? null],
+  ];
+}
+```
+- `itemListForTours(Collection $tours)` returns ItemList with first page 12 URLs.
+
+
+VI) Accessibility & Performance
+-------------------------------
+- All images: `alt` text → fallback to destination/tour title; add `loading="lazy"` & `decoding="async"`.
+- Banner: use `role="img"` with `aria-label` if decorative; otherwise include textual alternative.
+- Ensure accordion buttons are `<button>` with keyboard support.
+- Swiper: ensure focusable pagination; add `aria-live="polite"` for slides.
+- Cache: ResponseCache for destination pages; warm on publish; clear on update.
+- Assets: load template CSS first; defer non-critical JS; preconnect Google Fonts; consider local font later.
+
+
+VII) Admin (Filament) fields (later this sprint)
+------------------------------------------------
+- Destination resource with: name, slug, excerpt, description_html (Tiptap), facts (language/currency/religion/timezone), banner image (single), gallery (multi), activities (Repeater: title, brief_html), items (Repeater: title, body_html, image, url), SEO fields (meta_title, meta_description, canonical_url, noindex), is_featured, status, published_at.
+- Optional relation managers: Tours of this destination (hasMany).
+
+
+VIII) Open Questions (confirm to finalize)
+-----------------------------------------
+1) Facts bar fields — keep exactly 4 (language, currency, religion, timezone) or make dynamic list?  
+2) “Must‑Know & Facts” — internal simple items table or link to existing Posts by tag?  
+3) “Top Destinations” — curated featured list or auto by most tours?  
+4) Tours filter on this page — add category/price filters at the top now or defer?  
+5) Destination → Country structure — will we have parent/child hierarchy?
+
+
+AI CODER PROMPT (Copy/Paste)
+============================
+You are an expert Laravel + Filament v4 + Blade engineer. Build the **Destination detail** page using the provided static HTML (tour-destination.html) without altering its layout/visuals. Keep classes/DOM intact and only replace content nodes with Blade variables/loops.
+
+Inputs
+- Template file: tour-destination.html (for markup sections). fileciteturn2file0
+- Models: Destination (new), Tour (existing; add destination_id FK if not already present).
+- Services: MetaService, SchemaService (as described).
+- Assumptions: English & USD only; reviews/comments already handled elsewhere.
+
+Tasks
+1) Routes/Controller
+   - Add `/destinations/{destination:slug}` with `DestinationController@show`.
+   - Eager load: activities, items, tours (published), media.
+   - Provide `$metaData`, `$breadcrumbJson`, `$tours` (paginate 12), `$topDestinations`.
+
+2) Blade View (resources/views/destinations/show.blade.php)
+   - Copy template HTML as-is.
+   - Bind dynamic regions:
+     - Breadcrumb, H1, excerpt.
+     - Banner background + facts (language, currency, religion, timezone).
+     - Intro section (description_html + right image from gallery[0]).
+     - Seasonal activities accordion (loop activities).
+     - Must‑Know slider (loop items; image+title+body+URL).
+     - Tours grid: loop `$tours` using `@include('components.tour-card', ['tour'=>$tour])`; replace pagination markup with `{{ $tours->links() }}` while preserving styling via pagination view overrides.
+     - Top Destinations slider: `$topDestinations` loop (image/name/excerpt/button).
+   - Push JSON‑LD: BreadcrumbList; ItemList for tours; Place (destination).
+
+3) Assets & JS
+   - Ensure Swiper/Fancybox available (NPM or CDN). Initialize guarded in `init.js`:
+     - `.must-know-swiper`, `.destination-tours-swipper` (typo preserved from template if needed), pagination/nav selectors.
+   - Accordion JS: add small toggle script if template doesn’t include it.
+
+4) A11y & Perf
+   - Alt text fallbacks; `loading="lazy"` & `decoding="async"` on non-hero images.
+   - Keyboard accessible accordion; visible focus states (use existing Tailwind utilities).
+   - ResponseCache for show route; eager loads to prevent N+1.
+
+Deliverables
+- Controller + Blade view rendering dynamic content 1:1 with template.
+- JSON‑LD + meta tags via services.
+- Paginated tours and working sliders/accordion; no console errors.
+- Short README mapping each template section to the Blade bindings.
+
+END OF FILE

@@ -1,0 +1,139 @@
+
+AI CODER PROMPT — Asset Parity Audit & Fix (Template → Laravel + Vite)
+======================================================================
+
+Goal
+----
+We are seeing layout/spacing/icon/JS issues because our Laravel/Vite build is **not using the exact same assets** (CSS, JS, fonts, icons) as the original static template pages. Your job is to:
+1) Inventory all assets referenced by the original HTML.
+2) Verify their **presence, path, version, and load order** in our Laravel app.
+3) Fix mismatches (paths, order, versions, missing files), and wire them so the rendered Blade pages are **pixel-parity** with the original template.
+
+Constraints
+-----------
+- Do **not** change HTML structure/classes unless an asset is provably unused in the original.
+- Prefer **original assets first**. Vite/NPM replacements may be used only when the version & CSS/JS behavior match.
+- Maintain the **exact order** of CSS/JS from the original template unless we document a safe re-ordering.
+
+Deliverables
+------------
+- `docs/asset-parity-report.md`: full inventory + diff + decisions.
+- Patched Blade layouts/partials with **correct asset tags and order**.
+- `vite.config.js` / `package.json` updates if needed.
+- Screenshots or a simple “before/after” comparison checklist proving parity on at least these pages: **tour-destination**, **tour-details**, **blog-details**.
+
+Phase 1 — Inventory (Original Template)
+---------------------------------------
+1) For each template page (tour-destination.html, tours-details-style-01.html, blogs-details.html, base layout):
+   - Extract and list, in order:
+     - `<link rel="stylesheet" …>`
+     - `<script …>` (head and body)
+     - `<link rel="preconnect">`, `<link rel="preload">`
+     - Font files or font CSS (e.g., Google Fonts)
+     - Icon packs (Iconify, SVG sprites)
+     - Vendor CSS/JS (Swiper, Fancybox, Masonry, noUiSlider, AOS, etc.)
+   - Capture **versions** (inline comments, file names, CDN URLs).
+   - Note **data-attributes** required for init (e.g., `data-fancybox`).
+2) Save as `docs/asset-inventory.json` with fields:
+   - `name`, `type` (css/js/font), `path_or_url`, `version`, `location` (head/body), `order`, `required_by` (pages/components), `notes`.
+
+Phase 2 — Inventory (Laravel/Vite app)
+--------------------------------------
+1) List assets we currently load in `resources/css`, `resources/js`, `public/assets`, CDN tags in Blade, and Vite entries:
+   - `layouts/app.blade.php` (head + end-of-body)
+   - `partials/header.blade.php`, `partials/footer.blade.php`
+   - Page-specific stacks (`@stack('head')`, `@stack('scripts')`)
+2) Build `docs/asset-current.json` with same fields as above.
+3) Diff `asset-inventory.json` vs `asset-current.json`:
+   - Missing files
+   - Version mismatches
+   - Load-order mismatches
+   - Duplicate/overlapping frameworks (e.g., **two Tailwind builds**)
+   - CDN vs local discrepancies (CSS paths, source maps)
+   - Missing font/icon CSS
+   - Incompatible plugin major versions (Swiper v8 vs v6 etc.)
+
+Phase 3 — Fix Strategy
+----------------------
+A) CSS
+- Ensure **template CSS is loaded before app Tailwind**, exactly as in the original. If both contain Tailwind utilities, **remove one** or namespace the template CSS.
+- Confirm base/normalize files are present in the same order.
+- Restore **vendor CSS** (e.g., Swiper/Fancybox CSS) before any dependent components.
+- Ensure **fonts** (Google Fonts or local) match weights/styles used by template; add `<link rel="preconnect">` for fonts.
+
+B) JS
+- Order: vendor libraries → template’s init → app scripts.
+- Pin versions to match original (package.json or CDN with exact version).
+- Reintroduce template’s **init code** if it was removed; keep it idempotent (safe to call multiple times).
+- Ensure icon system (Iconify or SVG sprite) is loaded *once*, before usage.
+
+C) Images & Icons
+- Verify **all** referenced images (`/assets/images/...`) exist in `public/assets/...` with correct paths.
+- For icon fonts or sprites, verify the CSS references and font file paths are correct; fix `publicPath` if bundling with Vite.
+
+D) Vite Integration
+- If keeping CDN for critical vendor libraries (temporary), keep them **outside** Vite (just like the template).
+- If using NPM for Swiper/Fancybox, ensure **versions** match the template and import their CSS/JS in the same load phase.
+- In `vite.config.js`, verify `base`, `build.manifest`, and `rollupOptions` do not rewrite URLs that the template CSS expects.
+
+Phase 4 — Implement Changes
+---------------------------
+1) Update `layouts/app.blade.php` **head**:
+   - `<link>` order identical to template.
+   - Include **vendor CSS** and **font CSS**.
+   - Keep `@vite` **after** template CSS unless we’re intentionally merging (document it).
+2) Update `layouts/app.blade.php` **end-of-body**:
+   - Load vendor JS in the original order.
+   - Load template’s init / page scripts.
+   - Load `@vite('resources/js/app.js')` **last**.
+3) Page-specific stacks:
+   - Move any page-only vendor code into `@push('head')` / `@push('scripts')` to avoid global bloat but still preserve order.
+4) Remove **duplicate Tailwind** if both the template and app ship their own Tailwind builds. Prefer the template version for parity (short-term), then plan a merge later.
+
+Phase 5 — Verification
+----------------------
+1) **Network waterfall check** (DevTools → Network → CSS/JS):
+   - Files present in correct order and status code 200.
+   - Versions/CDN URLs match template.
+2) **Console**: zero errors/warnings about missing modules or undefined functions.
+3) **Visual parity**: compare screenshots or manually check sections that were off:
+   - Destination banner (width/height, rounded corners)
+   - Facts bar icons and spacing (requires Iconify + vendor CSS)
+   - Card grids (margins, gaps, hover effects)
+   - Sliders/accordions (Swiper/Fancybox loaded + initialized)
+4) **Audit Tailwind**:
+   - Confirm there is NOT more than one active Tailwind stylesheet at runtime (search DevTools for `/*! tailwindcss `).
+   - If both are needed temporarily, ensure template CSS is loaded **first** and app CSS does not purge required classes.
+
+Phase 6 — Documentation
+-----------------------
+- Update `README-assets.md` describing **exact** CSS/JS/font order and where each file lives (CDN vs local).
+- Add a `scripts/audit-assets.js` (optional) that checks existence of every path in `asset-inventory.json` and prints a diff.
+
+Concrete To-Dos
+----------------
+- [ ] Build `docs/asset-inventory.json` from original HTML.
+- [ ] Build `docs/asset-current.json` from Laravel app.
+- [ ] Produce `docs/asset-parity-report.md` with a **table diff**.
+- [ ] Patch Blade layout/partials to match order.
+- [ ] Pin versions in package.json (or CDN query params).
+- [ ] Verify Network, Console, and Visual parity on 3 key pages.
+- [ ] Save a before/after note of console & network waterfalls.
+
+Common Pitfalls Checklist
+-------------------------
+- Two Tailwind builds loaded simultaneously → specificity fights, broken spacing.
+- Missing vendor CSS (e.g., Swiper/Fancybox) → sliders look unstyled.
+- Iconify missing or loaded late → empty icons or layout jumps.
+- Fonts not preconnected/preloaded → FOUT/CLS.
+- Reordered scripts → init code runs before library load.
+- Vite rewriting relative URLs inside vendor CSS → broken background images (fix via `vite.config.js` or keep those CSS files unbundled).
+
+Acceptance
+----------
+- Runtime uses the **same assets (files, versions, and order)** as the original template.
+- All template pages render pixel-close with no layout regressions.
+- DevTools: zero console errors; network shows correct files.
+- Documented asset map (`docs/asset-parity-report.md`) included and linked from project README.
+
+END OF PROMPT

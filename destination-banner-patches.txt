@@ -1,0 +1,112 @@
+
+Destination Banner Width/Height Issue — Diagnosis + Ready Patches
+=================================================================
+
+Why it’s not full-width & looks too tall
+----------------------------------------
+1) Banner inside `.container` → max-width cap (not full-bleed). Your top hero likely sits outside `.container`, so it spans the viewport.  
+2) Tall feeling caused by:
+   - `min-height: 450px` on the banner wrapper.
+   - Extra-wide gaps on the facts bar (`xl:gap-36`), forcing lots of whitespace.
+   - `w-[45%] md:w-auto` on each fact item → awkward wrapping and extra vertical space.
+
+You don’t need other partials—this is local layout behavior. The `app.blade.php` is fine; the change is in your destination view.
+
+---
+
+Patch A — Full‑bleed banner (matches hero behavior)
+---------------------------------------------------
+**What it does:** moves the background wrapper outside the `.container`. Keeps the facts bar aligned to the grid via an inner `.container`.
+
+```blade
+{{-- Banner with Quick Facts (full‑bleed) --}}
+<section class="mb-[60px] md:mb-24">
+  <div class="relative overflow-hidden bg-center bg-cover md:rounded-2xl"
+       style="background-image:url('{{ $destination->getFirstMediaUrl('banner') ?: asset('assets/images/destination-banner.png') }}'); min-height:420px;"
+       role="img" aria-label="{{ $destination->name }} banner">
+
+    {{-- Center facts bar to site width --}}
+    <div class="container relative">
+      <div class="absolute left-0 right-0 bottom-8">
+        <div class="mx-auto bg-white-grey rounded-2xl p-4 flex flex-wrap items-center justify-center gap-4 md:gap-6 lg:gap-8 xl:gap-10"
+             role="complementary" aria-label="Quick facts about {{ $destination->name }}">
+          @php $facts = [
+            ['icon'=>'solar:global-linear','label'=>'Language','value'=>data_get($destination->facts,'language','English')],
+            ['icon'=>'solar:dollar-linear','label'=>'Currency','value'=>data_get($destination->facts,'currency','USD')],
+            ['icon'=>'famicons:accessibility-outline','label'=>'Religion','value'=>data_get($destination->facts,'religion','—')],
+            ['icon'=>'lucide:layers','label'=>'Timezone','value'=>data_get($destination->facts,'timezone','UTC')],
+          ]; @endphp
+
+          @foreach($facts as $fact)
+            <div class="flex items-center gap-2 basis-1/2 md:basis-auto">
+              <span class="iconify text-green-zomp" data-icon="{{ $fact['icon'] }}" data-width="22" data-height="22"></span>
+              <span class="text-dark-grey">
+                <span>{{ $fact['label'] }}:</span>
+                <strong class="text-darker-grey">{{ $fact['value'] }}</strong>
+              </span>
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+```
+Changes vs current:
+- Removed outer `.container` around the background, so the image spans the viewport (full‑bleed).
+- Reduced `min-height` from 450 → 420.
+- Replaced `w-[45%]` with `basis-1/2 md:basis-auto` so two-per-row on small, auto-fit on md+.
+- Reduced extreme `xl:gap-36` to `xl:gap-10` (still roomy but not excessive).
+
+---
+
+Patch B — Keep contained width, fix height/spacing
+--------------------------------------------------
+**What it does:** stays inside `.container` but makes spacing predictable and height tighter.
+
+```blade
+{{-- Banner with Quick Facts (contained) --}}
+<section class="mb-[60px] md:mb-24">
+  <div class="container">
+    <div class="relative overflow-hidden bg-center bg-cover rounded-2xl"
+         style="background-image:url('{{ $destination->getFirstMediaUrl('banner') ?: asset('assets/images/destination-banner.png') }}'); min-height:380px;"
+         role="img" aria-label="{{ $destination->name }} banner">
+
+      <div class="absolute left-6 right-6 bottom-6">
+        <div class="bg-white-grey rounded-2xl p-4 flex flex-wrap items-center justify-center gap-4 md:gap-6 lg:gap-8"
+             role="complementary" aria-label="Quick facts about {{ $destination->name }}">
+          @foreach([
+            ['icon'=>'solar:global-linear','label'=>'Language','value'=>data_get($destination->facts,'language','English')],
+            ['icon'=>'solar:dollar-linear','label'=>'Currency','value'=>data_get($destination->facts,'currency','USD')],
+            ['icon'=>'famicons:accessibility-outline','label'=>'Religion','value'=>data_get($destination->facts,'religion','—')],
+            ['icon'=>'lucide:layers','label'=>'Timezone','value'=>data_get($destination->facts,'timezone','UTC')],
+          ] as $fact)
+            <div class="flex items-center gap-2 basis-1/2 lg:basis-1/4">
+              <span class="iconify text-green-zomp" data-icon="{{ $fact['icon'] }}" data-width="22" data-height="22"></span>
+              <span class="text-dark-grey">
+                <span>{{ $fact['label'] }}:</span>
+                <strong class="text-darker-grey">{{ $fact['value'] }}</strong>
+              </span>
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+```
+Changes vs current:
+- Lowered `min-height` to `380px`.
+- Replaced `xl:gap-36` with smaller gaps.
+- Predictable 2-per-row → 4-per-row grid via `basis-1/2 lg:basis-1/4`.
+- Removed `w-[45%]` which caused awkward wrapping.
+
+---
+
+Extra polish (optional)
+-----------------------
+- If your top hero has special full‑bleed rules, copy those here for visual parity.
+- Ensure destination tour card links use the correct route signature if your route expects `city`:
+  `route('tours.show', [$tour->city, $tour])` or `route('tours.show.nocity', $tour)` (avoid `route('tours.show', $tour->slug)` if your route model binding expects the model).
+
+That’s it—apply **either** Patch A or Patch B and the banner will match your desired layout without needing other partials.

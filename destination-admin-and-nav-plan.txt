@@ -1,0 +1,201 @@
+
+Destination Admin Form (Filament v4) + Header/Footer Links
+==========================================================
+(Implementation plan + AI coder prompt)
+
+Scope
+-----
+This add-on plan covers administrator CRUD for **Destinations** in Filament v4 and the public site navigation updates:
+- Filament Resource for Destination (form, table, relations, policies)
+- Media (banner, gallery) + facts/activities/items repeaters
+- Slugging, SEO, featured ordering, country hierarchy support
+- Add "Destinations" links to header and footer with dynamic lists
+- Sitemaps and 301 redirects updates
+- QA and rollout checklist
+
+Assumptions
+-----------
+- Laravel 10 + Filament v4 already installed.
+- Models/tables exist per the previous plan: `countries`, `destinations`, `destination_activities`, `destination_items`, `tours(destination_id)`.
+- Spatie Media Library installed and configured.
+- MetaService & SchemaService already in project.
+
+A) Filament Resource: DestinationResource
+----------------------------------------
+1) Generate
+   php artisan make:filament-resource Destination --generate
+
+2) Navigation
+   - Navigation group: "Content"
+   - Navigation icon: heroicon-o-map
+   - Sort order: place near Tours/Posts
+
+3) Form Schema (app/Filament/Resources/DestinationResource.php)
+   Use Tabs: "Main", "Media", "Facts & Info", "Activities", "Must‑Know", "SEO", "Publishing"
+   - Main
+     • TextInput: name (required, max:150)
+     • TextInput: slug (unique, disabled on edit; auto-generated from name via afterStateUpdated)
+     • Select: country_id (relationship: countries.name, searchable)
+     • Textarea: excerpt (max: 400–600 chars)
+     • RichEditor (Tiptap/Editor): description_html
+     • TextInput: video_url (nullable, url rule)
+   - Media
+     • SpatieMediaLibraryFileUpload: banner (collection 'banner', single, image validation, max size)
+     • SpatieMediaLibraryFileUpload: gallery (collection 'gallery', multiple, reorderable)
+   - Facts & Info
+     • Fieldset "Facts" with 4 TextInputs (language, currency, religion, timezone) bound into a JSON field `facts`
+       (Implement with a KeyValue or custom `->afterStateHydrated` / `->dehydrateStateUsing` to/from array)
+     • RichEditor: best_time_html (nullable)
+     • RichEditor: travel_tips_html (nullable)
+     • KeyValue: weather_json (optional; keys=Jan..Dec, values=summary or avg temp/rain)
+   - Activities (Relation Manager or Inline Repeater)
+     • Repeater: activities (sort_order)
+       - TextInput: title (required)
+       - RichEditor: brief_html
+       - Sortable (drag handle), minItems: 0, maxItems: 20
+       - Save to `destination_activities` via hasMany relation
+   - Must‑Know (Relation Manager or Inline Repeater)
+     • Repeater: items (sort_order)
+       - TextInput: title (required)
+       - RichEditor: body_html
+       - TextInput: url (nullable, url rule)
+       - MediaUpload: image (choose: add to 'items' collection or use simple image path)
+       - Save to `destination_items` via hasMany relation
+   - SEO
+     • TextInput: meta_title (max: 70)
+     • Textarea: meta_description (max: 160)
+     • TextInput: canonical_url (nullable, url)
+     • Toggle: noindex
+   - Publishing
+     • Toggle: is_featured
+     • TextInput: order (numeric, default 0, help: controls carousel/card sorting)
+     • Select: status (enum draft/published)
+     • DateTimePicker: published_at (nullable)
+
+4) Table Columns
+   - Columns: name (searchable), country.name, is_featured (boolean), order (numeric), status (badge), updated_at (date)
+   - Filters: Country, Status, Featured
+   - Actions: Edit / View / Delete / Impersonate Preview link (opens public route)
+   - Bulk: Delete, Set Featured, Set Status
+
+5) Relation Managers (optional but recommended)
+   - ActivitiesRelationManager (hasMany): inline create/reorder
+   - ItemsRelationManager (hasMany): supports media upload / ordering
+   - ToursRelationManager (hasMany): quick jump to tours filtered by destination
+
+6) Validation Rules (server-side)
+   - name: required|string|max:150
+   - slug: required|alpha_dash|unique:destinations,slug,{id}
+   - country_id: nullable|exists:countries,id
+   - video_url/canonical_url/url: nullable|url
+   - order: integer|min:0
+   - status: in:draft,published
+   - facts: array with keys language/currency/religion/timezone (strings, max reasonable length)
+   - weather_json: associative array or null
+   - activities/items: validate nested arrays
+
+7) Slugging
+   - On create: auto-generate slug from name; ensure uniqueness.
+   - On update: keep slug stable; allow manual override behind a toggle.
+
+8) Policies & Permissions
+   - Generate policy: php artisan make:policy DestinationPolicy --model=Destination
+   - Gate: viewAny/view/create/update/delete/forceDelete
+   - Assign roles (e.g., "Editor" can publish), or use Filament Shield if installed.
+
+B) Public Navigation: Header & Footer
+-------------------------------------
+1) Header
+   - In `resources/views/partials/_header.blade.php` add a "Destinations" top-level link: href="{{ route('destinations.index') }}"
+   - Dropdown (optional): show top N featured destinations (ordered by `order` then #tours)
+     • Cache list for 1 day.
+     • Keep exact template classes; only inject the loop.
+   - If a mega-menu exists in template, slot a "Destinations" column with featured links.
+
+2) Footer
+   - In `resources/views/partials/_footer.blade.php`: add a destinations column list
+     • Heading: "Top Destinations"
+     • Loop over cached featured destinations (limit, e.g., 8)
+     • Fallback: show static links if none published
+
+3) Helper (optional)
+   - View Composer or dedicated ViewModel to fetch and cache featured destinations:
+     App\Providers\AppServiceProvider@boot:
+       View::composer(['partials._header','partials._footer'], function ($view) {
+         $featured = cache()->remember('nav_featured_destinations', 86400, function () {
+           return \App\Models\Destination::query()
+             ->where('status','published')->where('is_featured',true)
+             ->orderBy('order')->take(12)->get(['id','name','slug']);
+         });
+         $view->with('navFeaturedDestinations', $featured);
+       });
+
+C) Destination Index (Public)
+-----------------------------
+- Route: GET /destinations → DestinationController@index
+- View: resources/views/destinations/index.blade.php
+  • Grid of destinations (published), search by name/country, pagination
+  • Card: banner image (or gallery[0]), name, excerpt, CTA to detail
+  • Sorting: featured first (order asc), then alphabetic or by #tours
+- Add CollectionPage JSON-LD; meta tags via MetaService (title "Destinations — {app}")
+
+D) Sitemaps & Redirects
+-----------------------
+- Include destinations in sitemap:
+  • /sitemap.xml links to /sitemap-destinations.xml
+  • Each destination URL, lastmod = updated_at, changefreq = weekly
+- Redirects table already present:
+  • Add admin UI (Filament) to manage 301s, used by RedirectsMiddleware
+  • When renaming slug, auto-suggest creating a redirect from old → new
+
+E) QA Checklist
+---------------
+- Filament form validates and saves all fields; media uploads work
+- Activities/items saved and rendered in the public view 1:1 to template
+- Header/footer show Destinations link(s); dropdown lists correctly cached
+- Index/detail pages pass Lighthouse 90+ and no console errors
+- JSON-LD validates for Place/ItemList/CollectionPage
+- Slug uniqueness enforced; redirects functional when slugs change
+
+F) Rollout / Seeding
+--------------------
+- Create sample Countries and Destinations with banners/galleries
+- Add 3 activities and 6 items per destination
+- Ensure at least 2 featured destinations with order set
+- Verify header/footer dropdowns render these items
+
+G) Updated AI Coder Prompt
+--------------------------
+You are an expert Laravel 10 + Filament v4 + Blade engineer. Implement **Destination admin + navigation** with the following requirements:
+
+1) **Filament DestinationResource**
+   - Tabs: Main, Media, Facts & Info, Activities, Must‑Know, SEO, Publishing
+   - Fields: name, slug (autofill, unique), country_id, excerpt, description_html, video_url
+   - Media: banner (single), gallery (multiple)
+   - Facts: 4 fixed keys in `facts` JSON (language, currency, religion, timezone)
+   - Optional: best_time_html, travel_tips_html, weather_json (KeyValue)
+   - Activities & Items: repeaters (hasMany tables with sort_order)
+   - SEO fields & noindex toggle; is_featured + numeric `order`
+   - Status & published_at; server‑side validation as listed
+   - Policy: basic CRUD permissions
+
+2) **Public Navigation**
+   - Add "Destinations" link to header & footer; keep template classes
+   - Optionally show featured destinations in header dropdown & footer list
+   - Cache lists daily; hydrate via View Composer
+
+3) **Destination Index Page**
+   - Grid with search/pagination; featured first (order asc); includes CollectionPage JSON‑LD
+   - Cards: banner/gallery image, name, excerpt, CTA
+
+4) **Sitemaps & Redirects**
+   - Add destinations to sitemap; weekly changefreq
+   - Wire RedirectsMiddleware + Filament admin page to create 301 rules
+
+5) **Acceptance**
+   - Admin can create/edit/publish destinations with media and sections
+   - Header/footer reflect links; index and detail render pixel‑accurate to template
+   - JSON‑LD valid; Lighthouse ≥ 90; no console errors
+   - Slugs unique; redirects available when slugs change
+
+END OF FILE

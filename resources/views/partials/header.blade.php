@@ -15,6 +15,7 @@
             <ul class="flex items-center gap-6 text-base font-semibold">
                 <li><a href="{{ route('home') }}" class="text-black transition-all duration-200 hover:text-green-zomp">Home</a></li>
                 <li><a href="{{ route('tours.index') }}" class="text-black transition-all duration-200 hover:text-green-zomp">Tours</a></li>
+                <li><a href="{{ route('destinations.index') }}" class="text-black transition-all duration-200 hover:text-green-zomp">Destinations</a></li>
                 <li><a href="{{ route('blog.index') }}" class="text-black transition-all duration-200 hover:text-green-zomp">Blog</a></li>
                 <li><a href="{{ route('about') }}" class="text-black transition-all duration-200 hover:text-green-zomp">About</a></li>
                 <li><a href="{{ route('contact') }}" class="text-black transition-all duration-200 hover:text-green-zomp">Contact</a></li>

@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use App\Models\Destination;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share featured destinations with header and footer
+        View::composer(['partials.header', 'partials.footer'], function ($view) {
+            $navFeaturedDestinations = cache()->remember('nav_featured_destinations_v1', 86400, function () {
+                return Destination::query()
+                    ->where('status', 'published')
+                    ->where('is_featured', true)
+                    ->orderBy('order')
+                    ->orderBy('name')
+                    ->take(12)
+                    ->get(['id', 'name', 'slug']);
+            });
+
+            $view->with('navFeaturedDestinations', $navFeaturedDestinations);
+        });
     }
 }

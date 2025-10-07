@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TourResource\Pages;
-use App\Models\{Tour, City, Category, Tag};
+use App\Models\{Tour, City, Category, Tag, Destination};
 use BackedEnum;
 use UnitEnum;
 use Filament\Actions;
@@ -86,6 +86,13 @@ class TourResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->columnSpan(3),
+                                Forms\Components\Select::make('destination_id')
+                                    ->label('Destination')
+                                    ->relationship('destination', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->columnSpan(3)
+                                    ->helperText('Link this tour to a destination'),
                                 Forms\Components\Select::make('difficulty')
                                     ->options(['easy'=>'Easy','moderate'=>'Moderate','hard'=>'Hard'])
                                     ->columnSpan(3),

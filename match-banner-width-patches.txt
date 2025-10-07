@@ -1,0 +1,138 @@
+
+Make Content Match Top Banner Width — Practical Fixes
+=====================================================
+
+You have two ways to make the content below occupy the **same width** as the top banner.
+
+First, decide: Is your **top banner full-bleed** (edge-to-edge) or **contained** (aligned to a max-width container)?
+
+───────────────────────────────────────────────────────────────────────────────
+A) If the top banner is FULL‑BLEED → make sections full‑bleed too
+───────────────────────────────────────────────────────────────────────────────
+Use a small utility wrapper that lets a section break out of the `.container` and span the viewport width, while still centering an inner `.container` for content.
+
+**Option A1 — Add a reusable utility class (cleanest):**
+```html
+<!-- app.css (or a tiny CSS file) -->
+<style>
+.full-bleed {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+}
+</style>
+```
+
+```blade
+{{-- Any section you want to match the banner width --}}
+<section class="full-bleed py-12">
+  <div class="container">
+    <!-- your two-column content goes here -->
+  </div>
+</section>
+```
+
+**Option A2 — Pure Tailwind (no custom CSS):**
+```blade
+<section class="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen py-12">
+  <div class="container">
+    <!-- your two-column content -->
+  </div>
+</section>
+```
+
+Use this on: the “Discover …” section, Seasonal Activities section, and any other block that should line up with the banner’s full width.
+
+───────────────────────────────────────────────────────────────────────────────
+B) If the top banner is CONTAINED → make all sections use the same container
+───────────────────────────────────────────────────────────────────────────────
+Ensure every section uses the same `.container` or the same max‑width classes. If your template has multiple container variants (e.g., `.container`, `.container-lg`), switch to one consistently.
+
+**Tailwind container plugin (optional for global consistency):**
+In `tailwind.config.js`:
+```js
+module.exports = {
+  theme: {
+    container: {
+      center: true,
+      padding: '1rem',
+      screens: { sm: '640px', md: '768px', lg: '1024px', xl: '1280px', '2xl': '1440px' }
+    }
+  }
+}
+```
+Then use `<div class="container">` everywhere.
+
+───────────────────────────────────────────────────────────────────────────────
+Fix the big white gap next to “Discover …”
+───────────────────────────────────────────────────────────────────────────────
+That gap appears because the **right column image is shorter** than the text in the left column, so the next section can only start after the taller left column ends.
+
+Pick one of these:
+
+**Gap Fix 1 — Make the image taller to match text height**
+```blade
+<img
+  class="object-cover w-full rounded-2xl md:h-[420px]"  {{-- add a fixed height on md+ --}}
+  src="..."
+  alt="...">
+```
+
+**Gap Fix 2 — Stack image below text on md‑ screens**
+```blade
+<div class="grid grid-cols-1 md:grid-cols-2 items-start gap-5 md:gap-12">
+  <div class="order-1"> ...text... </div>
+  <div class="order-2 md:order-2"> ...image... </div>
+</div>
+```
+(Your current grid already stacks on mobile; adding a defined height or moving the image below text often looks cleaner.)
+
+**Gap Fix 3 — Split into two separate sections**
+Make “Discover …” one section **full-width**, then start a **new section** for “Seasonal Activities.” This prevents the activities block from trying to share rows with the intro image/text and removes the awkward whitespace from mismatched column heights.
+
+───────────────────────────────────────────────────────────────────────────────
+Copy‑paste example (full‑bleed + better Discover layout)
+───────────────────────────────────────────────────────────────────────────────
+```blade
+{{-- DISCOVER (full‑bleed, with taller image) --}}
+<section class="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen py-12">
+  <div class="container">
+    <div class="grid grid-cols-1 md:grid-cols-2 items-start gap-6 md:gap-12">
+      <div>
+        <p class="mb-2 font-semibold text-green-zomp">{{ $destination->excerpt }}</p>
+        <h2 class="text-black font-bold text-[32px] leading-[1.1] mb-6">Discover {{ $destination->name }}</h2>
+        <div class="prose max-w-none text-dark-grey">{!! $destination->description_html !!}</div>
+      </div>
+      <div>
+        <img
+          src="{{ $destination->getFirstMedia('gallery') ? $destination->getFirstMedia('gallery')->getUrl() : asset('assets/images/destination-01.png') }}"
+          alt="{{ $destination->name }}"
+          class="w-full rounded-2xl object-cover md:h-[420px]" loading="lazy" decoding="async">
+      </div>
+    </div>
+  </div>
+</section>
+
+{{-- SEASONAL ACTIVITIES (full‑bleed, new row) --}}
+<section class="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen py-12">
+  <div class="container">
+    <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-6 md:gap-12">
+      <img ...class="rounded-2xl object-cover md:h-[420px]" ...>
+      <div> ... accordion ... </div>
+    </div>
+  </div>
+</section>
+```
+
+───────────────────────────────────────────────────────────────────────────────
+Checklist
+───────────────────────────────────────────────────────────────────────────────
+[ ] Decide full‑bleed vs contained overall layout.  
+[ ] Apply A1/A2 to sections that must match banner width.  
+[ ] Fix the gap using a taller image height or split into a new section.  
+[ ] Keep typography and spacing consistent with the template.  
+
+END OF FILE

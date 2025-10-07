@@ -6,6 +6,7 @@ use App\Http\Controllers\TourController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DestinationController;
 // (duplicate import removed)
 
 // Home → use Tours archive
@@ -19,6 +20,10 @@ Route::get('/tours/search', [ListingController::class, 'search'])->name('tours.s
 
 // Tour Detail
 Route::get('/tours/{slug}', [TourController::class, 'show'])->name('tours.show');
+
+// Destinations
+Route::get('/destinations', [DestinationController::class, 'index'])->name('destinations.index');
+Route::get('/destinations/{destination:slug}', [DestinationController::class, 'show'])->name('destinations.show');
 
 // Blog
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');

@@ -1,0 +1,120 @@
+
+Destination Banner: Why it's "huge" & not full‑width — Diagnosis + Fixes
+=======================================================================
+
+What you're seeing
+------------------
+1) **Not full-width:** Your banner is wrapped in a `.container`, which (by design) limits its max width (e.g., 1140–1280px). The background image uses `bg-cover`, so it looks expansive, but it's still constrained by the container’s max-width — unlike your other “top banner” which is likely outside of `.container` (i.e., full-bleed).
+
+2) **Feels “huge” (tall):**
+   - The banner has `min-height: 450px` — that guarantees a tall block even when its content is small.
+   - The “Quick Facts” overlay uses **very large horizontal gaps**: `gap-3 md:gap-7 lg:gap-10 xl:gap-36`. On wide screens, `xl:gap-36` creates big empty space, causing the overlay to “stretch” visually.
+   - Each fact item uses `w-[45%] md:w-auto`. On large screens this causes line-wrapping and extra vertical space when there isn’t enough horizontal room to fit 4 items with `xl:gap-36`.
+
+Root causes
+-----------
+- `.container` constrains width → not full-bleed.
+- `min-height: 450px` + oversized gaps + `w-[45%]` → unnecessary perceived height and whitespace.
+
+Two clean solutions
+-------------------
+
+Option A — Full‑bleed banner (match your other top hero)
+--------------------------------------------------------
+Use a full-width wrapper (outside `.container`) for the background image; keep the inner “facts” box centered.
+
+**Blade (replace just the banner section):**
+```blade
+{{-- Banner with Quick Facts (full‑bleed) --}}
+<section class="mb-[60px] md:mb-24">
+  <div class="relative overflow-hidden bg-center bg-cover rounded-none md:rounded-2xl"
+       style="background-image: url('{{ $destination->getFirstMediaUrl('banner') ?: asset('assets/images/destination-banner.png') }}'); min-height: 450px;"
+       role="img" aria-label="{{ $destination->name }} banner">
+
+    {{-- center the inner content to site width --}}
+    <div class="container relative">
+      <div class="absolute left-0 right-0 bottom-8">
+        <div class="mx-auto bg-white-grey rounded-2xl p-4 flex flex-wrap items-center justify-center gap-4 md:gap-6 lg:gap-8 xl:gap-10"
+             role="complementary" aria-label="Quick facts about {{ $destination->name }}">
+          {{-- make items naturally wrap and fill --}}
+          @php
+            $facts = [
+              ['icon' => 'solar:global-linear', 'label' => 'Language', 'value' => data_get($destination->facts, 'language', 'English')],
+              ['icon' => 'solar:dollar-linear', 'label' => 'Currency', 'value' => data_get($destination->facts, 'currency', 'USD')],
+              ['icon' => 'famicons:accessibility-outline', 'label' => 'Religion', 'value' => data_get($destination->facts, 'religion', '—')],
+              ['icon' => 'lucide:layers', 'label' => 'Timezone', 'value' => data_get($destination->facts, 'timezone', 'UTC')],
+            ];
+          @endphp
+          @foreach($facts as $fact)
+            <div class="flex items-center gap-2 basis-1/2 md:basis-auto">
+              <span class="iconify text-green-zomp" data-icon="{{ $fact['icon'] }}" data-width="22" data-height="22"></span>
+              <span class="text-dark-grey">
+                <span>{{ $fact['label'] }}:</span>
+                <strong class="text-darker-grey">{{ $fact['value'] }}</strong>
+              </span>
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+```
+Key changes:
+- The background is no longer inside `.container`, so it spans the viewport width. The rounded corners are optional (removed on mobile, kept on md+ if desired).
+- The facts box sits inside a `.container` so its content still aligns with the site grid.
+- Gaps reduced to `gap-4 md:gap-6 lg:gap-8 xl:gap-10` (more reasonable).
+- Replaced `w-[45%]` with responsive `basis-1/2 md:basis-auto` so two-per-row on small screens, four across on md+ if space allows.
+
+Option B — Keep contained width, fix spacing/height
+---------------------------------------------------
+If you want to stay inside `.container`, keep your original structure but tame spacing and width behavior.
+
+**Blade (contained fix):**
+```blade
+{{-- Banner with Quick Facts (contained) --}}
+<section class="mb-[60px] md:mb-24">
+  <div class="container">
+    <div class="relative overflow-hidden bg-center bg-cover rounded-2xl"
+         style="background-image: url('{{ $destination->getFirstMediaUrl('banner') ?: asset('assets/images/destination-banner.png') }}'); min-height: 380px;"
+         role="img" aria-label="{{ $destination->name }} banner">
+
+      <div class="absolute left-6 right-6 bottom-6">
+        <div class="bg-white-grey rounded-2xl p-4 flex flex-wrap items-center justify-center gap-4 md:gap-6 lg:gap-8"
+             role="complementary" aria-label="Quick facts about {{ $destination->name }}">
+          @foreach($facts as $fact)
+            <div class="flex items-center gap-2 basis-1/2 lg:basis-1/4">
+              <span class="iconify text-green-zomp" data-icon="{{ $fact['icon'] }}" data-width="22" data-height="22"></span>
+              <span class="text-dark-grey">
+                <span>{{ $fact['label'] }}:</span>
+                <strong class="text-darker-grey">{{ $fact['value'] }}</strong>
+              </span>
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+```
+Key changes:
+- Lowered `min-height` to `380px`.
+- Reduced extreme gaps.
+- Replaced `w-[45%]` with `basis-1/2 lg:basis-1/4` so items are predictable: 2 per row on small, 4 per row on large.
+
+Other small improvements
+------------------------
+- If you want the facts box to visually span edge-to-edge of the banner, use `left-0 right-0` and rely on the container **inside** the absolute layer (Option A shows this).
+- If your **top hero** is using negative margins or custom CSS to be full-bleed, mimic that pattern here (but the cleanest is simply to remove the `.container` around the background image).
+- Ensure your global `.container` utility indeed limits width with `max-width`. If you use Tailwind's container plugin, it will — that’s expected.
+
+Checklist to try (in order)
+---------------------------
+1) Decide whether this banner should be **full-bleed** (Option A) or **contained** (Option B).
+2) Reduce `xl:gap-36` to a saner value and remove hard `w-[45%]` in favor of responsive flex-basis.
+3) Adjust `min-height` down if the section still feels too tall.
+4) Confirm no extra margins/padding from parent sections are pushing height.
+
+No other partials are strictly required to debug this — the issue is layout utility usage. If you want me to mirror your exact header “full-bleed” behavior, I can review your `layouts/app.blade.php` and `partials/_header.blade.php` to match that pattern in this section too.
+
+END OF FILE
