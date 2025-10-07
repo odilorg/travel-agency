@@ -4,22 +4,25 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RedirectResource\Pages;
 use App\Models\Redirect;
+use BackedEnum;
+use UnitEnum;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
 class RedirectResource extends Resource
 {
     protected static ?string $model = Redirect::class;
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-uturn-right';
-    protected static ?string $navigationGroup = 'Settings';
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-arrow-uturn-right';
+    protected static string | UnitEnum | null $navigationGroup = 'Settings';
     protected static ?int $navigationSort = 70;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             Forms\Components\TextInput::make('from')
                 ->required()
                 ->helperText('Old path, e.g., /old/path/'),
@@ -39,8 +42,8 @@ class RedirectResource extends Resource
             Tables\Columns\TextColumn::make('to')->limit(60),
             Tables\Columns\TextColumn::make('http_status'),
         ])->actions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
+            Actions\EditAction::make(),
+            Actions\DeleteAction::make(),
         ]);
     }
 

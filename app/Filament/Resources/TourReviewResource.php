@@ -4,22 +4,25 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TourReviewResource\Pages;
 use App\Models\TourReview;
+use BackedEnum;
+use UnitEnum;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
 class TourReviewResource extends Resource
 {
     protected static ?string $model = TourReview::class;
-    protected static ?string $navigationIcon = 'heroicon-o-star';
-    protected static ?string $navigationGroup = 'Content';
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-star';
+    protected static string | UnitEnum | null $navigationGroup = 'Content';
     protected static ?int $navigationSort = 30;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             Forms\Components\Select::make('tour_id')
                 ->relationship('tour','title')
                 ->searchable()
@@ -54,11 +57,11 @@ class TourReviewResource extends Resource
             Tables\Filters\TernaryFilter::make('approved'),
             Tables\Filters\TernaryFilter::make('verified_booking'),
         ])->actions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
+            Actions\EditAction::make(),
+            Actions\DeleteAction::make(),
         ])->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make()
+            Actions\BulkActionGroup::make([
+                Actions\DeleteBulkAction::make()
             ]),
         ]);
     }
