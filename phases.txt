@@ -1,0 +1,317 @@
+Laravel 11 + Filament v4 Travel Agency Project
+
+  Phased Implementation Plan
+
+  ---
+  PHASE 1: Foundation & Setup ⚙️
+
+  Goal: Set up Laravel 11, Filament v4, and configure the base environment.
+
+  To-Do:
+
+  - Install Laravel 11 fresh
+  - Configure database (MySQL) and .env
+  - Install Filament v4 + required Spatie packages
+  - Configure Vite for asset compilation
+  - Set up basic folder structure for Blade views
+  - Create .env.example with all required keys
+  - Initial Git setup (if needed)
+
+  Deliverables:
+  - Working Laravel 11 installation
+  - Filament admin accessible at /admin
+  - Database connected and migrations ready
+  - Vite configured for CSS/JS compilation
+
+  Estimated Time: 30-45 minutes
+
+  ---
+  PHASE 2: Database Design & Migrations 🗄️
+
+  Goal: Create normalized database schema with SEO-first approach.
+
+  To-Do:
+
+  - Create migration: cities table
+  - Create migration: categories table
+  - Create migration: tags table
+  - Create migration: tours table (with SEO fields)
+  - Create migration: tour_images table
+  - Create migration: pivot tables (category_tour, taggables)
+  - Create migration: posts table
+  - Create migration: pages table
+  - Create migration: contact_submissions table
+  - Create migration: redirects table
+  - Create migration: site_settings table
+  - Create Eloquent models for all tables
+  - Define relationships (BelongsTo, HasMany, MorphToMany, etc.)
+  - Create factories for Tours, Posts, Cities, Categories
+  - Create seeders with realistic sample data
+
+  Deliverables:
+  - Complete database schema
+  - All Eloquent models with relationships
+  - Seeders producing 20+ tours, 15+ posts, 5+ cities
+  - Factories for testing
+
+  Estimated Time: 1.5-2 hours
+
+  ---
+  PHASE 3: Template Audit & Asset Migration 🎨
+
+  Goal: Convert static HTML template to Blade layouts without breaking design.
+
+  To-Do:
+
+  - Copy template assets (css/, js/, images/) to /public/assets/
+  - Configure Vite to bundle template CSS/JS
+  - Create main layout: layouts/app.blade.php
+  - Extract reusable partials:
+    - _header.blade.php (navigation)
+    - _footer.blade.php
+    - _breadcrumbs.blade.php
+    - _flash.blade.php
+    - _schema.blade.php (JSON-LD)
+  - Create Blade components:
+    - <x-seo.meta /> (meta tags)
+    - <x-ui.card-tour /> (tour card)
+    - <x-ui.pagination />
+    - <x-forms.contact /> (with honeypot + reCAPTCHA)
+  - Map template sections to dynamic data sources
+  - Test asset loading and responsive design
+
+  Deliverables:
+  - Blade layout matching template pixel-perfect
+  - Reusable components for tours/blog cards
+  - All CSS/JS loading correctly via Vite
+  - Template audit checklist completed
+
+  Estimated Time: 2-3 hours
+
+  ---
+  PHASE 4: Filament Admin Panel 🛠️
+
+  Goal: Build full-featured admin with CRUD for all content types.
+
+  To-Do:
+
+  - TourResource (Form + Table + Filters)
+    - Title, slug (auto-generate), excerpt, description (Tiptap)
+    - Duration, price, currency, city, categories, tags
+    - Difficulty, featured toggle, status, published_at
+    - SEO panel (meta_title, meta_description, canonical, noindex)
+    - Media uploader (cover + gallery with alt text)
+  - PostResource (similar to TourResource + author)
+  - PageResource (title, slug, body, template select, SEO)
+  - CityResource (name, slug, country_code)
+  - CategoryResource (name, slug, description)
+  - TagResource (name, slug)
+  - RedirectResource (from, to, http_status)
+  - Settings Page (site branding, meta defaults, socials, reCAPTCHA keys)
+  - Configure Filament Shield (roles: Admin, Editor, Author)
+  - Add preview buttons to resources
+  - Bulk actions (Publish/Unpublish/Delete)
+
+  Deliverables:
+  - Full CRUD for Tours, Posts, Pages, Taxonomies
+  - SEO fields on all resources
+  - Media library integrated (Spatie or native uploader)
+  - Settings page functional
+  - Admin accessible with sample data
+
+  Estimated Time: 3-4 hours
+
+  ---
+  PHASE 5: Public Routes & Controllers 🌐
+
+  Goal: Implement SEO-friendly permalinks and front-end controllers.
+
+  To-Do:
+
+  - Define routes in web.php:
+    - / → HomeController
+    - /tours/ → TourController@index
+    - /tours/{city}/{tour} → TourController@show
+    - /tours/category/{category} → TourController@category
+    - /tag/{tag} → TourController@tag
+    - /blog/ → BlogController@index
+    - /blog/{post} → BlogController@show
+    - /about, /contact, etc. → PageController
+  - Implement route model binding by slug
+  - Create controllers:
+    - HomeController (featured tours, latest posts)
+    - TourController (index with filters, show)
+    - BlogController (index, show, category, tag)
+    - PageController (show by slug)
+    - ContactController (store submission)
+  - Add Redirects middleware (301 handling)
+  - Enforce trailing slash policy
+
+  Deliverables:
+  - All public routes functional
+  - Route model binding by slug working
+  - 301 redirects on old URLs
+  - Clean hierarchical URLs
+
+  Estimated Time: 2-2.5 hours
+
+  ---
+  PHASE 6: Front-End Views & Template Integration 🖼️
+
+  Goal: Connect controllers to Blade views using converted template.
+
+  To-Do:
+
+  - Home page view (hero, featured tours, latest posts)
+  - Tours index view (filters, grid, pagination)
+  - Tour detail view (full info, gallery, related tours)
+  - Blog index view (cards, categories, tags, search)
+  - Blog detail view (post content, author, related)
+  - About/Contact pages (static content from Pages model)
+  - Contact form with validation + spam checks
+  - Test all views with seeded data
+  - Ensure responsive design and image lazy-loading
+
+  Deliverables:
+  - All public pages match template design
+  - Dynamic content from database
+  - Filters/search/pagination working
+  - Contact form functional
+
+  Estimated Time: 3-4 hours
+
+  ---
+  PHASE 7: SEO Implementation 🔍
+
+  Goal: Implement comprehensive SEO with meta tags, JSON-LD, sitemaps.
+
+  To-Do:
+
+  - Create Meta service (title, description, canonical, OG/Twitter)
+  - View composer for Meta on all pages
+  - JSON-LD components:
+    - Organization schema
+    - BreadcrumbList on inner pages
+    - BlogPosting for posts
+    - TouristTrip + Offer for tour details
+  - Generate sitemaps (Spatie):
+    - /sitemap.xml (index)
+    - /sitemap-tours.xml
+    - /sitemap-posts.xml
+    - /sitemap-pages.xml
+  - Create robots.txt route
+  - Implement canonical URLs on all routes
+  - Handle noindex for drafts
+  - Auto-create redirects on slug change
+
+  Deliverables:
+  - Meta tags present on every page
+  - Valid JSON-LD on appropriate pages
+  - Sitemaps generated and accessible
+  - robots.txt functional
+  - Redirects working on slug changes
+
+  Estimated Time: 2-3 hours
+
+  ---
+  PHASE 8: Performance & Caching ⚡
+
+  Goal: Optimize for Core Web Vitals and fast page loads.
+
+  To-Do:
+
+  - Configure response cache for public pages
+  - Eager loading to prevent N+1 queries
+  - Cache query results (tours list, posts list)
+  - Optimize images on upload (Spatie Image Optimizer)
+  - Add responsive images (srcset/sizes)
+  - Implement lazy loading for images
+  - Defer non-critical JS
+  - Set HTTP caching headers for static assets
+  - Run Lighthouse audit and fix issues
+  - Add pagination limits
+
+  Deliverables:
+  - LCP < 2.5s on key pages
+  - CLS < 0.1
+  - All images optimized and lazy-loaded
+  - Query optimization (no N+1)
+  - Cache working correctly
+
+  Estimated Time: 2-3 hours
+
+  ---
+  PHASE 9: Testing & Quality Assurance ✅
+
+  Goal: Write tests and ensure code quality.
+
+  To-Do:
+
+  - Feature tests:
+    - Tour route model binding by slug
+    - Post route model binding
+    - Redirects on slug change (301)
+    - Contact form validation
+    - Tour filters and pagination
+  - Unit tests:
+    - Sitemap generation
+    - Meta tag service
+    - Slug uniqueness
+  - Browser testing (manual):
+    - Responsive design
+    - Contact form spam prevention
+    - Admin CRUD operations
+  - Fix any bugs found
+
+  Deliverables:
+  - Test suite passing (PHPUnit)
+  - Core functionality verified
+  - Admin panel tested and stable
+
+  Estimated Time: 2-3 hours
+
+  ---
+  PHASE 10: Documentation & Deployment Prep 📚
+
+  Goal: Production-ready deployment with complete documentation.
+
+  To-Do:
+
+  - Create comprehensive README.md:
+    - Installation instructions
+    - Environment configuration
+    - Admin usage guide
+    - Deployment steps
+  - Document .env.example with comments
+  - Create GitHub Actions CI workflow (lint, test, build)
+  - Add deployment commands (cache, storage:link, optimize)
+  - Configure CSP headers
+  - Set up queue worker instructions (if needed)
+  - NGINX/Cloudflare cache config examples
+  - Final security audit (CSRF, XSS, SQL injection)
+
+  Deliverables:
+  - Complete README
+  - CI/CD pipeline configured
+  - Deployment guide
+  - Security checklist completed
+
+  Estimated Time: 1.5-2 hours
+
+  ---
+  Total Estimated Time: 18-26 hours
+
+  ---
+  Recommended Approach
+
+  I suggest we proceed as follows:
+
+  1. Approve phases 1-3 first (Foundation, Database, Template) — these are prerequisites
+  2. Code and review phases 1-3
+  3. Then approve phases 4-7 (Admin, Routes, Views, SEO) — core functionality
+  4. Code and review phases 4-7
+  5. Finally approve phases 8-10 (Performance, Testing, Deployment)
+
+  This allows you to review architecture decisions early before we build too much on top.
+
+  ---

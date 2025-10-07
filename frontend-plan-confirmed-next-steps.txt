@@ -1,0 +1,228 @@
+
+Frontend Plan — Confirmed Decisions + Next Steps (with Code) 
+============================================================
+
+Status
+------
+Your choices are excellent. Below is a consolidated, “ready-to-build” plan based on your confirmations, including code stubs and an updated AI coder prompt. This bridges Phases 4–6 and bakes in your answers (USD only, EN only, reviews new-only, moderated comments, weekly sitemap, redirects prep, image conversions, related-content logic).
+
+───────────────────────────────────────────────────────────────────────────────
+A) Final Decisions (Locked)
+───────────────────────────────────────────────────────────────────────────────
+1) Assets: Hybrid
+   - NPM: Swiper, Fancybox (bundled by Vite).
+   - CDN first (migrate later): Masonry, NoUiSlider, small utilities.
+   - Version pinning + SRI; central initializer with guards.
+
+2) Images
+   - Copy all template images to `public/assets/images/` now.
+   - Spatie Media Library later for dynamic content; template images as fallbacks.
+   - Add lazy/async now; responsive/srcset + WebP/AVIF in Phase 5.
+
+3) Layout Strategy
+   - Tour detail: implement style-01 now; style-02 later via `layout_variant`.
+   - Skip shop/cart for now; remove links to avoid crawlable dead ends.
+
+4) Content & SEO
+   - Currency: USD (single for now). Field `tours.currency` reserved for future.
+   - Locale: English only for now; DB fields allow later i18n.
+   - Reviews: new submissions only; moderation enabled.
+   - Blog comments: enabled with moderation (Filament).
+   - Related content: category → tags → curated manual backups.
+   - Sitemap: weekly refresh (+ on content updates); redirects table ready (no legacy yet).
+
+───────────────────────────────────────────────────────────────────────────────
+B) Concrete Next Steps (This Week)
+───────────────────────────────────────────────────────────────────────────────
+1) Assets & Layout
+   - Copy `/assets` → `public/assets/`.
+   - Wire template CSS *first*, then project Tailwind (if present).
+   - Add `resources/js/init.js`; load via Vite; use guards and `reinitUI` hook.
+   - Build/confirm `layouts/app.blade.php`, `partials/_header.blade.php`, `partials/_footer.blade.php`.
+
+2) Tour Detail (style-01)
+   - Convert `tours-details-style-01.html` → `resources/views/tours/show.blade.php`.
+   - Bind: title, badges, rating, city, price, duration, gallery, overview, highlights, inclusions/exclusions, itinerary, FAQs, reviews, lead form.
+   - Inject JSON-LD (`TouristTrip` + `Offer[]` + `BreadcrumbList`) and meta via services.
+
+3) Blog Detail
+   - Convert `blogs-details.html` → `resources/views/blog/show.blade.php`.
+   - Bind: title, author, date, body_html, categories, tags, related posts.
+   - JSON-LD (`BlogPosting`) + meta via services.
+   - Comments enabled with moderation.
+
+4) Controllers
+   - Eager load all relations (avoid N+1).
+   - Provide related content sets (category→tags→manual).
+
+5) Weekly Jobs & Redirects
+   - Add scheduler to refresh sitemap and clear ResponseCache weekly.
+   - Keep redirects middleware and table; no entries yet.
+
+───────────────────────────────────────────────────────────────────────────────
+C) Code Snippets (Drop-in)
+───────────────────────────────────────────────────────────────────────────────
+1) JS initializer (resources/js/init.js)
+----------------------------------------
+class UIInitializer {
+  static init() {
+    this.initSwiper();
+    this.initFancybox();
+    this.initMasonry();
+    this.initSliders();
+  }
+  static initSwiper() {
+    if (window.Swiper && document.querySelector('.swiper')) {
+      // eslint-disable-next-line no-new
+      new Swiper('.swiper', { /* TODO: template config */ });
+    }
+  }
+  static initFancybox() {
+    if (window.Fancybox) { window.Fancybox.bind('[data-fancybox]', {}); }
+  }
+  static initMasonry() {
+    if (window.Masonry && document.querySelector('.masonry')) {
+      // eslint-disable-next-line no-new
+      new Masonry('.masonry', { itemSelector: '.masonry-item' });
+    }
+  }
+  static initSliders() {
+    if (window.noUiSlider) { /* bind sliders when present */ }
+  }
+  static reinit(root = document) { this.init(); }
+}
+document.addEventListener('DOMContentLoaded', () => UIInitializer.init());
+
+2) Blade image component (resources/views/components/tour-image.blade.php)
+--------------------------------------------------------------------------
+@props(['tour', 'conversion' => 'card', 'alt' => null, 'class' => ''])
+@if(method_exists($tour, 'hasMedia') && $tour->hasMedia('gallery'))
+  <img src="{{ $tour->getFirstMediaUrl('gallery', $conversion) }}"
+       alt="{{ $alt ?? $tour->title }}"
+       loading="lazy" decoding="async" class="{{ $class }}">
+@else
+  <img src="/assets/images/tours/placeholder.jpg"
+       alt="{{ $alt ?? $tour->title }}"
+       loading="lazy" decoding="async" class="{{ $class }}">
+@endif
+
+3) Media conversions (app/Models/Tour.php)
+------------------------------------------
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
+class Tour extends Model implements HasMedia {
+  use InteractsWithMedia;
+  public function registerMediaConversions(Media $media = null): void {
+    $this->addMediaConversion('thumb')->width(300)->height(200)->sharpen(10);
+    $this->addMediaConversion('card')->width(400)->height(300)->sharpen(10);
+    $this->addMediaConversion('gallery')->width(800)->height(600)->sharpen(10);
+  }
+}
+
+4) Related content selection (app/Http/Controllers/TourController.php)
+----------------------------------------------------------------------
+$related = Tour::where('status','published')
+  ->where('id','!=',$tour->id)
+  ->when($tour->categories->count(), function ($q) use ($tour) {
+    $q->whereHas('categories', fn($qq) => $qq->whereIn('id', $tour->categories->pluck('id')));
+  }, function ($q) use ($tour) {
+    $q->whereHas('tags', fn($qq) => $qq->whereIn('id', $tour->tags->pluck('id')));
+  })
+  ->take(6)->get();
+// Optional: union with manually curated list via pivot "related_tours" if available.
+
+5) Comments (moderated) — minimal public route & controller
+-----------------------------------------------------------
+routes/web.php
+Route::post('/blog/{post:slug}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
+
+app/Http/Controllers/CommentController.php
+public function store(Post $post, Request $request) {
+  $data = $request->validate([
+    'author_name' => 'required|max:100',
+    'author_email' => 'required|email|max:150',
+    'body' => 'required|max:3000',
+  ]);
+  $post->comments()->create([
+    'author_name'=>$data['author_name'],
+    'author_email'=>$data['author_email'],
+    'body'=>$data['body'],
+    'approved'=>false,
+  ]);
+  return back()->with('success','Thanks! Your comment is awaiting approval.');
+}
+
+6) Sitemap weekly refresh + cache clear (app/Console/Kernel.php)
+----------------------------------------------------------------
+protected function schedule(\Illuminate\Console\Scheduling\Schedule $schedule)
+{
+  $schedule->call(function () {
+    \Illuminate\Support\Facades\Artisan::call('responsecache:clear');
+    // If you generate a static sitemap file, regenerate here.
+  })->weeklyOn(1, '02:30'); // Mondays 02:30
+}
+
+7) Meta service — per-tour helper (app/Services/MetaService.php)
+----------------------------------------------------------------
+use Illuminate\Support\Str;
+use App\Models\Tour;
+
+public function forTour(Tour $tour): array
+{
+  return $this->compose(
+    title: ($tour->meta_title ?: ($tour->title.' - '.config('app.name'))),
+    description: $tour->meta_description ?: Str::limit(strip_tags($tour->excerpt ?: $tour->description_html), 160),
+    canonical: $tour->canonical_url ?: url()->current(),
+    og: [
+      'og:image' => method_exists($tour,'getFirstMediaUrl') ? $tour->getFirstMediaUrl('gallery','card') : null,
+    ],
+    robots: ['index' => !($tour->noindex ?? false), 'follow' => true]
+  );
+}
+
+8) Blog comments — Blade snippet (resources/views/blog/show.blade.php)
+----------------------------------------------------------------------
+@if(session('success'))<div class="alert success">{{ session('success') }}</div>@endif
+<form method="post" action="{{ route('comments.store', $post) }}" class="comment-form">
+  @csrf
+  <div><input type="text" name="author_name" placeholder="Your name" required></div>
+  <div><input type="email" name="author_email" placeholder="Your email" required></div>
+  <div><textarea name="body" rows="5" placeholder="Comment" required></textarea></div>
+  <button type="submit">Submit</button>
+</form>
+<ul class="comments">
+  @foreach($post->comments()->where('approved',true)->latest()->get() as $c)
+    <li><strong>{{ $c->author_name }}</strong> — {{ $c->created_at->format('M d, Y') }}<br>{{ $c->body }}</li>
+  @endforeach
+</ul>
+
+───────────────────────────────────────────────────────────────────────────────
+D) Updated AI Coder Prompt (Paste into your code-gen tool)
+───────────────────────────────────────────────────────────────────────────────
+You are an expert Laravel 10 + Filament v4 + Blade engineer. Implement the public frontend using our static template **without altering the visual design**. Use the following constraints and tasks:
+
+Constraints
+- USD only, English only for now.
+- Reviews: new-only, moderated; Blog comments: enabled + moderated.
+- Tour layout variant: start with style-01; reserve style-02 via `layout_variant`.
+- Assets: Swiper/Fancybox via NPM; optional libs via CDN first; centralized guards in `init.js`.
+- Images: copy template images now; use Spatie Media later; add lazy/async; plan responsive/srcset in Phase 5.
+- SEO/Schema: use `MetaService` + `SchemaService`. Canonicals + JSON-LD per page type.
+
+Deliverables
+1) **Layouts & Partials** — Create Blade layout, header/footer, breadcrumbs; wire template CSS first, Tailwind second; add `@stack('head')`/`@stack('scripts')`.
+2) **Tour Detail (style-01)** — Convert template to Blade; bind all dynamic fields; gallery with Fancybox/Swiper; reviews (approved only); inquiry form; JSON-LD `TouristTrip + Offer[] + BreadcrumbList`; meta via `MetaService::forTour()`.
+3) **Blog Detail** — Convert template; bind title/author/date/body/categories/tags; related posts; comments (moderated); JSON-LD `BlogPosting`; meta via `MetaService`.
+4) **Related Content** — Implement category→tag→manual fallback logic; expose `$related` in controllers.
+5) **Init JS** — Create `resources/js/init.js` with guarded initializers and `reinitUI()`; load via Vite; defer non-critical scripts.
+6) **Weekly Job** — Scheduler: clear ResponseCache weekly and regenerate sitemap if using static file.
+7) **Tests** — Validate JSON-LD in Google; verify canonical tags; check responsive breakpoints; ensure no design regressions.
+
+Acceptance
+- Pages render pixel-close to the template.
+- No console errors; JS initializers are idempotent.
+- Lighthouse ≥ 90; Rich results valid for Tours and Blog posts.
+
+END OF FILE

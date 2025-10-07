@@ -1,0 +1,231 @@
+
+Travel Agency Template → Laravel + Filament Frontend
+====================================================
+(Implementation plan + AI coder prompt)
+
+Source Reference
+---------------
+This plan is based on the uploaded **Template Analysis Report**. fileciteturn1file0
+
+
+I. Goals
+--------
+- Integrate the static HTML template into a Laravel 10 + Filament v4 stack as the **public frontend**.
+- Keep the original HTML/CSS structure intact while replacing hard-coded content with dynamic Blade bindings.
+- Make it **Google-friendly**: canonical URLs, SEO meta, JSON-LD, clean slugs, fast performance (lazy images, cache).
+- Prioritize **Tour Detail** and **Blog Post Detail** pages for Phase 1, then listings and home.
+- Use **MySQL** for content (not files) to support CRUD (via Filament) and relational queries.
+- Be compatible with previously defined Phases (2–6) for routes/controllers/SEO/services.
+
+
+II. Assets & Build (Vite-first)
+-------------------------------
+1) **Assets move**
+   - Copy `/assets/` → `public/assets/` keeping subfolders: `css`, `js`, `images` etc.
+   - Keep CDN links as fallbacks; prefer local when possible.
+2) **CSS**
+   - Keep `tailwind83a7.css` and `style83a7.css` as-is for now; later consider Tailwind JIT.
+   - If you use Tailwind via Vite too, make sure template’s tailwind file doesn’t conflict (namespace or purge carefully).
+3) **JS libraries**
+   - Prefer NPM for Swiper, Masonry, Fancybox, NoUiSlider, Moment, Daterangepicker, Iconify.
+   - Bundle via Vite; load in `layouts/app.blade.php`. Defer non-critical scripts.
+4) **Fonts**
+   - Urbanist via Google Fonts link in layout `<head>` (preconnect + display=swap).
+5) **Images**
+   - Keep folder structure under `public/assets/images/...`.
+   - Plan to switch to responsive `<img loading="lazy" srcset sizes>` progressively (Phase 5 guidance).
+
+
+III. Blade Skeleton & Boundaries
+--------------------------------
+Create these files (names can be adjusted to your repo style):
+
+- `resources/views/layouts/app.blade.php`  
+  - Paste the HEAD (meta slots), header include, `@yield('content')`, footer include, script stacks.
+- `resources/views/partials/_header.blade.php` (navbar, logo, language/currency widgets markup kept)
+- `resources/views/partials/_footer.blade.php`
+- `resources/views/partials/_breadcrumbs.blade.php` (markup from template; items loop)
+- `resources/views/components/`:
+  - `tour-card.blade.php` (grid card)
+  - `blog-card.blade.php`
+  - Small UI bits as needed (badge, rating-stars, price-chip)
+- Pages (Phase 1):
+  - `tours/show.blade.php` (map to `tours-details-style-01.html` now; style-02 later if needed)
+  - `blog/show.blade.php` (map to `blogs-details.html`)
+- Pages (Phase 2+):
+  - `tours/index.blade.php`, `tours/listing.blade.php` (category/tag), `tours/search.blade.php`
+  - `blog/index.blade.php`
+  - `pages/about.blade.php`, `pages/contact.blade.php`
+  - `welcome.blade.php` (home if needed)
+
+> Rule: Keep original classes and DOM structure. Replace only the content spans with Blade variables or loops.
+
+
+IV. Routes, Controllers, Services (Public)
+------------------------------------------
+Match Phase 4–6 scaffolding you already have:
+- Routes: `/tours`, `/tours/{city}/{tour}`, `/tour/{tour}`, `/blog/{post}`, `/about`, `/contact`, plus category/tag/search.
+- Controllers: `TourController`, `PostController`, `ListingController`, `PageController`, `ContactController`, `HomeController`.
+- Services: `MetaService` and `SchemaService` for SEO/JSON-LD.
+- Middleware: redirects middleware (optional).
+
+> Keep controllers slim, eager-load relationships: `city,categories,tags,itineraryItems,faqs,highlights,inclusions,exclusions,priceOptions,extras,reviews`.
+
+
+V. Dynamic Data Map — Tour Detail
+---------------------------------
+Template file baseline: `tours-details-style-01.html` (priority). fileciteturn1file0
+
+| Section / Selector                          | Dynamic binding (Blade)                                                 | Source/model                                   |
+|---------------------------------------------|-------------------------------------------------------------------------|-----------------------------------------------|
+| Breadcrumbs                                 | items: Home → Tours → `{{ $tour->title }}`                              | `SchemaService::breadcrumb()` + view partial  |
+| H1 title                                    | `{{ $tour->title }}`                                                    | `tours.title`                                  |
+| Category/flags (Featured/Best seller)       | `@if($tour->is_featured)` badge; loop `$tour->categories`               | `tours.is_featured`, pivot `categories`        |
+| Rating stars + count                         | Render stars from `round($tour->avg_rating)`, text `({{ $tour->reviews_count }})` | aggregate from `reviews`               |
+| Location + booked count                      | `{{ optional($tour->city)->name }}`, `{{ $tour->booked_count }}` (if present)      | `city`, `tours.booked_count` (optional) |
+| Gallery                                     | Loop `$tour->getMedia('gallery')` with Fancybox+Swiper                  | Spatie Media or custom `tour_images`           |
+| Price box                                   | `From ${{ number_format($tour->price_from,2) }}` + currency             | `tours.price_from`, `tours.currency`           |
+| Duration                                    | `{{ $tour->duration_days }} days` or nights if available                | `tours.duration_days`, `duration_nights`       |
+| Overview/description                        | `{!! $tour->description_html !!}`                                       | `tours.description_html`                       |
+| Highlights                                  | `@foreach($tour->highlights as $h) {{ $h->label }} @endforeach`         | `tour_highlights`                              |
+| Included/Excluded                           | loops for `inclusions`, `exclusions`                                    | `tour_inclusions`, `tour_exclusions`           |
+| Itinerary                                   | ordered list from `itineraryItems (day,time,title,body_html)`           | `tour_itinerary_items`                         |
+| FAQs                                        | accordion from `faqs (question, answer_html)`                           | `tour_faqs`                                    |
+| Reviews (approved)                          | `reviews()->where('approved',true)->latest()->take(10)`                 | `tour_reviews`                                 |
+| Lead/booking form                           | POST `/contact` hidden message “Inquiry: {{ $tour->title }}”            | `ContactController@store`                      |
+| JSON-LD                                     | `TouristTrip` + `Offer[]` + `BreadcrumbList`                            | `SchemaService`                                |
+| Meta                                        | title/desc/canonical/robots/OG via `MetaService`                        | `tours.meta_*` fields                          |
+
+
+VI. Dynamic Data Map — Blog Post Detail
+--------------------------------------
+Template file baseline: `blogs-details.html`. fileciteturn1file0
+
+| Section / Selector          | Dynamic binding (Blade)                                 | Source/model         |
+|-----------------------------|---------------------------------------------------------|----------------------|
+| Title H1                    | `{{ $post->title }}`                                    | `posts.title`        |
+| Hero image                  | `{{ $post->getFirstMediaUrl('featured') }}` (optional)  | Spatie Media/posts   |
+| Meta (author, date)         | `{{ optional($post->author)->name }}`, `{{ $post->published_at->format('M d, Y') }}` | relations |
+| Body                        | `{!! $post->body_html !!}`                              | `posts.body_html`    |
+| Categories & tags           | loops over `categories`, `tags`                         | relations            |
+| Related posts               | controller-provided collection                          | query by category    |
+| Comments (optional)         | if enabled (moderated)                                  | `post_comments`      |
+| JSON-LD                     | `BlogPosting`                                           | `SchemaService`      |
+| Meta                        | via `MetaService`                                       | `posts.meta_*`       |
+
+
+VII. Slugs, Permalinks & Routing
+--------------------------------
+- **Tours**: `/tours/{city:slug}/{tour:slug}`; fallback `/tour/{tour:slug}` if no city.
+- **Blog**: `/blog/{post:slug}`.
+- **Listings**: `/tours`, `/tours/category/{slug}`, `/tours/tag/{slug}`, `/tours/search?q=…`.
+- Generate **unique slugs** on create/update; keep a `redirects` table for legacy URLs.
+- Add canonical URLs & `noindex` toggles at model level.
+
+
+VIII. Admin (Filament v4) Alignment
+-----------------------------------
+- Ensure CRUD forms match dynamic fields above: title/slug, excerpt, description_html (Tiptap/EditorJS), galleries (Spatie Media), relationships (city/category/tag), SEO fields (meta_title, meta_description, canonical_url, noindex), pricing (price_from, currency), duration, highlights/inclusions/exclusions, itinerary items (repeaters), FAQs (repeaters), reviews (moderation).
+- For Posts: author, categories, tags, featured image, SEO fields.
+
+
+IX. Performance & Accessibility
+-------------------------------
+- Replace large images with WebP/AVIF; add `loading="lazy"` + `decoding="async"`.
+- Implement `srcset`/`sizes` on cards and galleries (Phase 5 pack).
+- Add alt text from title/aria-labels; proper heading order; focus states.
+- Enable ResponseCache for public pages; purge on model save/delete.
+- Defer non-critical JS; preconnect to fonts; preload main CSS if large.
+
+
+X. SEO & JSON-LD
+----------------
+- Meta per page via `MetaService` (title, description, canonical, robots, OG/Twitter).
+- JSON-LD:
+  - Tour detail: `TouristTrip` + `Offer[]` + `BreadcrumbList`
+  - Post detail: `BlogPosting` + `BreadcrumbList`
+  - Listings: `CollectionPage`
+- Sitemaps: `/sitemap.xml` with tours/posts/cities (Phase 5 pack).
+
+
+XI. Step-by-Step Page Wiring (Phase 1)
+-------------------------------------
+1) Create layout & partials; paste the template’s header/footer HTML.
+2) Create `tours/show.blade.php`; copy sections from `tours-details-style-01.html`:
+   - Mark dynamic spans: H1, flags, rating, location, price, duration, gallery, overview, highlights, inclusions/exclusions, itinerary, FAQs, reviews, form.
+3) Create `blog/show.blade.php` using `blogs-details.html`:
+   - Title, meta, image, body, categories/tags, related posts.
+4) Hook routes & controllers (existing from Phase 4/6). Test local data.
+5) Add JSON-LD + meta hooks via services.
+6) QA on mobile/desktop; verify no layout regressions.
+
+
+XII. Open Questions for You
+---------------------------
+- Do we keep both Tour detail layouts (style 01 & 02)? If yes, choose by category or boolean flag.
+- Do we need multi-currency display, or just a single currency?
+- Will reviews be imported, or collected via form?
+- Enable comments on blog or not (moderation workflow)?
+- Keep e-commerce sections (shop) or remove from build for now?
+
+
+AI CODER PROMPT (Copy/Paste)
+============================
+You are an expert Laravel + Filament v4 + Blade engineer. Implement the public frontend by converting our static template into Blade, staying extremely close to the original HTML/CSS.
+
+**Inputs**
+- Template structure and pages from the "Template Analysis Report" (tours-details-style-01.html, blogs-details.html, tours.html, blogs.html, header/footer). fileciteturn1file0
+- Existing Laravel app with models: Tour, City, Category, Tag, Post, plus relationships (itineraryItems, highlights, inclusions, exclusions, faqs, reviews, priceOptions, gallery media).
+- Services: MetaService (meta/canonical/OG) and SchemaService (JSON-LD).
+
+**Tasks**
+1. **Assets**
+   - Copy `/assets` → `public/assets`. Keep CDN fallbacks.
+   - Load Urbanist (Google Fonts) and all CSS/JS in `layouts/app.blade.php` using Vite; defer non-critical JS.
+2. **Layout & Partials**
+   - Create `layouts/app.blade.php`, `partials/_header.blade.php`, `partials/_footer.blade.php`, `partials/_breadcrumbs.blade.php`.
+   - Paste template markup verbatim. Add `@stack('head')` and `@stack('scripts')` hooks.
+3. **Tour Detail (`tours/show.blade.php`)**
+   - Start from `tours-details-style-01.html` and replace dynamic regions:
+     - `{{ $tour->title }}`, city badge, category/featured badges, rating stars `round($tour->avg_rating)`, reviews count, location, booked count.
+     - Gallery loop from `$tour->getMedia('gallery')`; plug Fancybox/Swiper (use template markup).
+     - Price box (`$tour->price_from`, `$tour->currency`), duration (`$tour->duration_days`).
+     - Overview `{!! $tour->description_html !!}`, highlights/inclusions/exclusions loops, itinerary loop with day/time/title/body_html.
+     - FAQs accordion loop, approved reviews list (latest 10).
+     - Booking/lead form posting to `route('contact.store')` with hidden reference.
+   - Push `BreadcrumbList` JSON-LD and `TouristTrip + Offer[]` JSON-LD via `SchemaService` to `@push('scripts')`.
+   - Set meta via `MetaService`: title fallback to `tour.title`, description to `tour.excerpt`.
+4. **Blog Detail (`blog/show.blade.php`)**
+   - Start from `blogs-details.html`; bind `{{ $post->title }}`, hero image, author, date, `{!! $post->body_html !!}`, categories, tags.
+   - Render related posts (controller will provide collection).
+   - Push `BlogPosting` JSON-LD via `SchemaService`. Set meta via `MetaService`.
+5. **Listings & Cards**
+   - For `tours/index.blade.php` and `blog/index.blade.php`, reuse template grids.
+   - Replace cards with `@include('components.tour-card')` / `@include('components.blog-card')`.
+6. **Accessibility & Performance**
+   - Add `alt` texts based on titles.
+   - Add `loading="lazy"` and `decoding="async"` to non-hero images.
+   - Use `srcset/sizes` for cards and gallery once available.
+   - Ensure headings are semantic; focus states visible.
+7. **QA**
+   - Verify routes: `/tours/{city}/{tour}`, `/tour/{tour}`, `/blog/{post}`.
+   - Validate JSON-LD with Google Rich Results test.
+   - Confirm canonical URLs and robots meta behavior.
+
+**Deliverables**
+- Blade views in `resources/views/...` matching the template structure.
+- Controllers only adjusted to pass required relationships and SEO data.
+- No design regressions versus the original HTML/CSS.
+- A short README section documenting which template file maps to which Blade view.
+
+**Constraints**
+- Keep HTML classes and DOM identical wherever possible.
+- Do not rewrite CSS or JS unless required for data binding.
+- Use Eloquent relationships for all dynamic sections; no hard-coded content.
+
+**Stretch (optional)**
+- Add Tour detail style 02 as an alternate Blade view and choose by `tour.layout_variant`.
+- Add fulltext search and category/tag pages (Phase 6 pattern).
+
+
+END OF FILE

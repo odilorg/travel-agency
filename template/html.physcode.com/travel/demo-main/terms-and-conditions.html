@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+
+<!-- Mirrored from html.physcode.com/travel/demo-main/terms-and-conditions.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 07 Oct 2025 06:03:58 GMT -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/tailwind83a7.css?v=1.9">
+    <link rel="stylesheet" href="assets/css/style83a7.css?v=1.9">
+    <!-- GoogleFonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <!-- Iconify -->
+    <script src="../../../code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <!-- Swiper -->
+    <link rel="stylesheet" href="../../../cdn.jsdelivr.net/npm/swiper%4011/swiper-bundle.min.css"/>
+    <script src="../../../cdn.jsdelivr.net/npm/swiper%4011/swiper-bundle.min.js"></script>
+    <!-- Masonry -->
+    <script src="../../../cdn.jsdelivr.net/npm/masonry-layout%404/dist/masonry.pkgd.min.js"></script>
+    <!-- Fancybox -->
+    <link href="../../../cdn.jsdelivr.net/npm/%40fancyapps/ui%405.0/dist/fancybox/fancybox.css" rel="stylesheet" />
+    <script src="../../../cdn.jsdelivr.net/npm/%40fancyapps/ui%405.0/dist/fancybox/fancybox.umd.js"></script>
+    <!-- NoUiSlider -->
+    <link rel="stylesheet" href="../../../cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.css">
+    <!-- jQuery -->
+    <script src="../../../code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Moment.js -->
+    <script src="../../../cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Daterangepicker -->
+    <link rel="stylesheet" href="../../../cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script src="../../../cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <title>Demo Main - Travel WordPress</title>
+</head>
+<body class="antialiased font-urbanist">
+    <header class="w-full bg-white">
+        <div class="container flex items-center justify-between py-4 mx-auto">
+            <div class="menu-toggle cursor-pointer block lg:hidden">
+                <span class="iconify" data-icon="fe:bar" data-width="24" data-height="24"></span>
+            </div>
+            <div class="header-logo flex items-center gap-2">
+                <a href="index.html">
+                    <img src="assets/images/logo.png" alt="Logo" class="w-auto h-10">
+                </a>
+            </div>
+            <nav class="header-menu mx-8 relative">
+                <div class="close-menu-toggle lg:hidden absolute top-2.5 right-2.5">
+                    <span class="iconify" data-icon="ic:sharp-clear" data-width="22" data-height="22"></span>
+                </div>
+                <ul class="flex justify-center lg:gap-4 xl:gap-10 text-base font-semibold text-black">
+					<li class="relative inline-block group w-full nav-father">
+						<div class="flex items-center justify-between lg:justify-normal gap-1 cursor-pointer">
+							<a href="index.html" class="transition-all duration-200 hover:text-green-zomp">Home</a>
+							<span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
+						</div>
+						<div class="nav-wrapper lg:absolute lg:p-5 lg:w-60 lg:left-0 lg:top-7.5 bg-white lg:shadow-custom lg:rounded-custom lg:opacity-0 lg:invisible lg:transition-all lg:group-hover:opacity-100 lg:group-hover:visible z-[999]">
+                            <ul class="nav-menu">
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200"><a href="https://html.physcode.com/travel/index.html" target="blank">Home 1 – Video Slider</a></li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200"><a href="https://html.physcode.com/travel/home-2.html" target="blank">Home 2 – Image Slider</a></li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200"><a href="https://html.physcode.com/travel/home-3.html" target="blank">Home 3 – Background Image</a></li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200"><a href="https://html.physcode.com/travel/home-4.html" target="blank">Home 4</a></li>
+                            </ul>
+						</div>
+					</li>
+
+                    <li class="relative inline-block group w-full nav-father">
+                        <div class="flex items-center justify-between lg:justify-normal gap-1 cursor-pointer">
+                            <a href="#" class="transition-all duration-200 hover:text-green-zomp">Tours</a>
+                            <span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
+                        </div>
+                        <div class="nav-wrapper lg:absolute lg:p-5 lg:w-60 lg:left-0 lg:top-7.5 bg-white lg:shadow-custom lg:rounded-custom lg:opacity-0 lg:invisible lg:transition-all lg:group-hover:opacity-100 lg:group-hover:visible z-[999]">
+                            <ul class="nav-menu">
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="tours.html">Tours List</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="tours-details-style-01.html">Single Tour – Layout 1</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="tours-details-style-02.html">Single Tour – Layout 2</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="deals.html">Deals</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="relative inline-block group w-full nav-father">
+                        <div class="flex items-center justify-between lg:justify-normal gap-1 cursor-pointer">
+                            <a href="#" class="transition-all duration-200 hover:text-green-zomp">Destination</a>
+                            <span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
+                        </div>
+                        <div class="nav-wrapper lg:absolute lg:p-5 lg:w-60 lg:left-0 lg:top-7.5 bg-white lg:shadow-custom lg:rounded-custom lg:opacity-0 lg:invisible lg:transition-all lg:group-hover:opacity-100 lg:group-hover:visible z-[999]">
+                            <ul class="nav-menu">
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="destinations.html">Destination List</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="tour-destination.html">Single Destination</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="trip-ideas.html">Trip Ideas</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="deals.html" class="transition-all duration-200 hover:text-green-zomp">Deals</a>
+                    </li>
+                    <li>
+                        <a href="careers.html" class="transition-all duration-200 hover:text-green-zomp">Careers</a>
+                    </li>
+                    <li class="relative inline-block group w-full nav-father">
+                        <div class="flex items-center justify-between lg:justify-normal gap-1 cursor-pointer">
+                            <a href="#" class="transition-all duration-200 hover:text-green-zomp">Page</a>
+                            <span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
+                        </div>
+                        <div class="nav-wrapper lg:absolute lg:p-5 lg:w-60 lg:left-0 lg:top-7.5 bg-white lg:shadow-custom lg:rounded-custom lg:opacity-0 lg:invisible lg:transition-all lg:group-hover:opacity-100 lg:group-hover:visible z-[999]">
+                            <ul class="nav-menu">
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="blogs.html">Blogs</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="shop.html">Shop</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="about-us.html">About us</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="contact-us.html">Contact Us</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="faqs.html">FAQs</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="gallery.html">Gallery</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="travel-tips.html">Travel Tips</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="my-account.html">My Account</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="cart.html">Cart</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="checkout.html">Checkout</a>
+                                </li>
+                                <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
+                                    <a href="terms-and-conditions.html">Terms and Conditions</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="flex items-center gap-6">
+                <div class="hidden sm:flex items-center gap-4">
+                    <div class="relative inline-block group">
+                        <div class="flex items-center gap-2 p-2 text-base font-semibold text-black rounded-lg cursor-pointer group-hover:bg-green-light">
+                            <span class="iconify text-green-zomp" data-icon="solar:global-linear" data-width="20" data-height="20"></span>
+                            <p>English</p>
+                            <span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
+                        </div>
+                        <div class="absolute right-0 z-50 invisible px-4 py-6 mt-3 transition-all duration-200 bg-white rounded-lg opacity-0 shadow-shadow-custom w-72 group-hover:visible group-hover:opacity-100">
+                            <h4 class="mb-4 text-base font-semibold  text-darker-grey">Select your language</h4>
+                            <div class="mb-4 border-b border-light-grey"></div>
+                            <ul class="grid grid-cols-2 gap-x-4">
+                                <li class="mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">English</li>
+                                <li class="mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">Français</li>
+                                <li class="mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">Italiano</li>
+                                <li class="mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">Español</li>
+                                <li class="mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">Deutsch</li>
+                                <li class="mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">Tiếng Việt</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="relative flex items-center gap-1">
+                        <select
+                            class="w-full px-2 pr-5 text-base font-semibold text-black border-none outline-none appearance-none cursor-pointer ring-0 focus:outline-none focus:ring-0 focus:border-transparent">
+                            <option class="px-2">USD</option>
+                            <option class="px-2">VND</option>
+                        </select>
+
+                        <span
+                            class="absolute right-0 text-gray-500 -translate-y-1/2 pointer-events-none top-1/2">
+                            <span class="iconify text-dark-grey" data-icon="meteor-icons:angle-down" data-width="20" data-height="20"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="relative inline-block group">
+                        <a href="#" class="hidden sm:block relative bg-white-grey p-2.5 rounded-full">
+                            <span class="iconify" data-icon="ph:shopping-cart-light" data-width="24" data-height="24"></span>
+                        </a>
+                        <div class="hidden md:block absolute shadow-[0_1px_5px_0_#0000001a] left-0 sm:left-auto right-0 py-6 px-4 mt-3 w-[350px] bg-white invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 z-50">
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-max border-collapse">
+                                    <tr class="">
+                                        <td class="py-2 text-left">
+                                            <i class="iconify text-lg cursor-pointer" data-icon="mdi:remove"></i>
+                                        </td>
+                                        <td class="py-2 text-left">
+                                            <a href="shop-details.html">
+                                                <img src="assets/images/shop/shop-cart-01.png" alt="" class="w-16 h-16 object-contain">
+                                            </a>
+                                        </td>
+                                        <td class="text-left" colspan="2">
+                                            <a href="shop-details.html" class="text-black font-medium transition duration-200 hover:text-green-zomp">Compact Shelter</a>
+                                            <span class="text-dark-grey block"><span>2 x </span>$20.00</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="">
+                                        <td class="py-2 text-left">
+                                            <i class="iconify text-lg cursor-pointer" data-icon="mdi:remove"></i>
+                                        </td>
+                                        <td class="py-2 text-left">
+                                            <a href="shop-details.html">
+                                                <img src="assets/images/shop/shop-cart-02.png" alt="" class="w-16 h-16 object-contain">
+                                            </a>
+                                        </td>
+                                        <td class="text-left" colspan="2">
+                                            <a href="shop-details.html" class="text-black font-medium transition duration-200 hover:text-green-zomp">Camera journey</a>
+                                            <span class="text-dark-grey block"><span>1 x </span>$10.00</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="">
+                                        <td class="py-2 text-left">
+                                            <i class="iconify text-lg cursor-pointer" data-icon="mdi:remove"></i>
+                                        </td>
+                                        <td class="py-2 text-left">
+                                            <a href="shop-details.html">
+                                                <img src="assets/images/shop/shop-cart-03.png" alt="" class="w-16 h-16 object-contain">
+                                            </a>
+                                        </td>
+                                        <td class="text-left" colspan="2">
+                                            <a href="shop-details.html" class="text-black font-medium transition duration-200 hover:text-green-zomp">Sleeping bag</a>
+                                            <span class="text-dark-grey block"><span>1 x </span>120.00</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="border-b border-light-grey my-4"></div>
+                            <div class="flex items-center justify-between gap-4">
+                                <strong class="block text-black font-semibold">Subtotal:</strong>
+                                <span class="block text-green-zomp font-semibold">$99.00</span>
+                            </div>
+                            <div class="border-b border-light-grey my-4"></div>
+                            <div class="flex items-center justify-between gap-4">
+                                <a href="cart.html" class="text-green-zomp py-2.5 px-6 rounded-[200px] border border-green-zomp font-semibold transition duration-200 hover:text-white hover:bg-green-zomp capitalize">View cart</a>
+                                <a href="checkout.html" class="text-green-zomp py-2.5 px-6 rounded-[200px] border border-green-zomp font-semibold transition duration-200 hover:text-white hover:bg-green-zomp capitalize">Checkout</a>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="text-white text-base font-semibold py-2.5 px-4 bg-green-zomp rounded-[200px] transition duration-200 hover:bg-green-zomp-hover">Sign in</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <section class="py-10 lg:py-12 border border-t-light-grey border-r-0 border-b-0 border-l-0">
+        <div class="container">
+            <nav class="font-medium text-grey" aria-label="Breadcrumb"><ul class="flex flex-wrap items-center gap-1 mb-2"><li><a href="index.html" class="transition duration-200 hover:text-green-zomp">Home</a></li><span class="mx-1">/</span><li><span class="text-dark-grey">Terms and Conditions</span></li></ul></nav>            <h1 class="text-black text-[40px] font-bold leading-[1.1em] mb-2">Terms and Conditions</h1>
+            <p class="text-dark-grey">Review our policies for a smooth travel experience</p>
+        </div>
+    </section>
+
+    <section class="mb-[60px] md:mb-24">
+        <div class="container">
+            <div class="border border-light-grey py-6 lg:py-[60px] px-6 md:px-[60px] lg:px-44 rounded-2xl text-dark-grey font-medium">
+                <span class="text-black italic mb-4 block">
+                    <strong>Effective Date:</strong>
+                    <span>February 17. 2024</span>
+                </span>
+                <p class="mb-10">These Terms and Conditions (hereinafter referred to as "Terms") govern your use of our Website and services. By accessing or using the Website, you agree to comply with and be legally bound by these Terms. If you do not agree with these Terms, please do not use the Website.</p>
+                <h4 class="text-black font-bold text-2xl mb-4">1. Information Collected and Processed</h4>
+                <p>When you access or use our Services, we collect and process information from and about you to provide the Services in a more personalized and relevant way. Some information we collect passively; for example, with our servers or with cookies or other similar tracking technologies. Some information we collect from different sources, including from you, affiliated entities, business partners, and other independent third-party sources. When you use our Services by “clicking-through” from a third-party website or when you visit third-party websites via our Services, those third-party websites may share information with us about your use of their service. Any information we receive from third-party websites may be combined with the information provided by you. Information collected may include the following:</p>
+                <ul class="list-disc ps-10">
+                    <li>Contact information, including name, phone number and postal and email addresses (both hashed and unhashed)</li>
+                    <li>Billing and other payment information (such as your bank account information, credit card number, cardholder name, expiration date, authentication code and billing address)</li>
+                    <li>Documentation to support travel and planning, including identity verification documents, if you choose to provide it to us</li>
+                    <li>Username and password</li>
+                    <li>Photos, reviews, social posts, and videos you may have provided to us</li>
+                    <li>Geolocation information</li>
+                    <li>Device information, such as when you accessed our Services and information about the Device used (for example, IP address, software or internet browser used, preferred languages, unique Device identifiers and advertising identifiers)</li>
+                    <li>Online activity, including pages you have visited, content reviewed, and apps reviewed</li>
+                    <li>Purchasing and booking history</li>
+                    <li>Information about your travel and experience plans and preferences</li>
+                    <li>Communications when you contact our customer service team, including inbound and outbound calls</li>
+                    <li>Information that you have provided to third party companies for the purposes of logging into social media platforms. This includes publicly available information, such as name, age range as well as email addresses.</li>
+                </ul>
+                <p class="mb-10">We may also collect, in instances where you have provided it, information about other travelers, including their email address and other travel-related information. If you are sharing information with us about other individuals, you must obtain their consent and ensure that they have understood and accepted how we will use their personal information (as described in this Statement). In addition to the categories noted above, we may also collect certain location information if you have instructed your Device to send such information via the privacy settings on that Device, or, for example, if you have uploaded photos tagged with location information</p>
+                <h4 class="text-black font-bold text-2xl mb-4">2. Information Uses and Purposes</h4>
+                <p>To the extent possible, we want to provide you with relevant content and a tailored experience when you use our Services, and we use information about you to do that, including in the following ways:</p>
+                <p>Registration and other contracts</p>
+                <ul class="list-disc ps-10">
+                    <li>Register and manage your account, including to allow you access to and use of our Services</li>
+                    <li>Facilitate your bookings</li>
+                    <li>Process payments or credits</li>
+                    <li>Make promotional offers to you that may include competitions, gift cards, rewards, cash back, and discounts</li>
+                </ul>
+                <p>Improve our Services</p>
+                <ul class="list-disc ps-10">
+                    <li>Use your information for analytical purposes and to enable us to improve our Services</li>
+                    <li>Provide you with a tailored/optimized experience by grouping users based on, for example, usage, interests, and demographics</li>
+                    <li>Send you survey or market research invitations</li>
+                </ul>
+                <p>Personalization and customization</p>
+                <ul class="list-disc ps-10">
+                    <li>Notify you about special offers, prize draws, competitions, and Services available from us, our affiliates, or our partners that may be of interest to you</li>
+                    <li>Tailor your experience, including by making inferences about your interests and preferences based on your activity, and customize the ads shown to you both on and off our website</li>
+                </ul>
+                <p>Communication</p>
+                <ul class="list-disc ps-10">
+                    <li>Communicate with you or facilitate communication between you, our partners, and/or affiliates</li>
+                    <li>Conduct, monitor and record your calls or interactions with us; for example, your communications with our customer service or sales teams, or through our use of pixels and similar technologies to monitor how you interact with our emails to you, such as whether you open or click on content in our emails</li>
+                    <li>Host your reviews, ratings, photos, videos and other content</li>
+                    <li>Customize your experience, including customizing the ads shown to you on and off our website</li>
+                    <li>Respond to your questions and comments</li>
+                </ul>
+                <p>Legal Compliance</p>
+                <ul class="list-disc ps-10">
+                    <li>Resolve disputes or troubleshoot problems</li>
+                    <li>Prevent fraud and other potentially prohibited or unlawful activities</li>
+                    <li>Comply with relevant laws, respond to legal requests, prevent harm, and protect our rights and the rights of other users and third parties</li>
+                    <li>Provide payment services, including to detect and prevent money laundering, fraud and security incidents, to comply with legal obligations, and to enforce payments terms of service</li>
+                </ul>
+                <p class="mb-10">Please note, if we use automated decision-making to process your personal information, we will implement appropriate measures required to safeguard your rights and freedoms including your right to obtain human intervention.</p>
+                <h4 class="text-black font-bold text-2xl mb-4">4. Information Choices</h4>
+                <p>Certain Device operating system versions permit you to opt out of certain types of information sharing, including to certain advertising networks. You can change the privacy settings of your Device at any time in order to turn off the functionality that collects and shares location information. Please check your Device settings if you want to limit such tracking. However, turning off location-sharing may affect certain features that we offer. If you have any questions about the privacy settings of your Device, we suggest you contact the manufacturer of your Device or your mobile service provider for help.</p>
+                <p>We also may share your information if we believe, in our sole discretion, that such disclosure is necessary:</p>
+                <ul class="list-disc ps-10">
+                    <li>To comply with legitimate and enforceable subpoenas, court orders, or other legal process; to establish or exercise our legal rights; to defend against legal claims; or as otherwise required by law. In such cases, we reserve the right to raise or waive any legal objection or right available to us.</li>
+                    <li>To investigate, prevent, or take action regarding illegal or suspected illegal activities; to protect and defend the rights, property, or safety of Viator, our customers, or others; and in connection with our Terms of Use and other agreements.</li>
+                    <li>In connection with a corporate transaction, such as a divestiture, merger, consolidation, or asset sale, or in the unlikely event of bankruptcy.</li>
+                </ul>
+                <p class="mb-10">Certain disclosures may be considered “sales” or “shares” under applicable U.S. state privacy laws. Details on how to exercise your legal rights with respect to such “sales” or “shares” can be found below in Section 13.</p>
+                <h4 class="text-black font-bold text-2xl mb-4">5. Information on Children</h4>
+                <p>Our Services are not intended for children, which we consider to be: (i) individuals that are 13 years of age or under, or the age of privacy consent in your jurisdiction; or (ii) when processing data on the basis of a contract, the age of legal capacity to enter into the agreement.</p>
+                <p class="mb-10">We will only collect or process information belonging to children under very limited circumstances. We might need to collect personal information belonging to children as part of our Service if, for example, the personal information is required as part of an experience-related reservation. We will only collect personal information belonging to children if it is provided by and with consent of a parent or guardian. If we become aware that we have processed the personal information of a child without the valid consent of a parent or guardian, we will delete the personal information.</p>
+                <h4 class="text-black font-bold text-2xl mb-4">6. Information Transfers</h4>
+                <p class="mb-10">We offer our Services to users located in many different jurisdictions. If we transfer your information to other countries, we will use and protect that information as described in this Statement and in accordance with applicable law.</p>
+                <h4 class="text-black font-bold text-2xl mb-4">7. Information Security</h4>
+                <p class="mb-10">We have implemented appropriate administrative, technical, and physical security procedures to help protect your information. We only authorize specific personnel to access personal information and they may do so only for permitted business functions. We use encryption when transmitting your information between your system and ours, and between our system and those of the parties with whom we share information. We also employ firewalls and intrusion detection systems to help prevent unauthorized access to your information. However, we cannot guarantee the security of information from unauthorized entry or use, hardware or software failure, or other circumstances outside of our control.</p>
+                <h4 class="text-black font-bold text-2xl mb-4">8. Information Deletion and Retention</h4>
+                <p class="mb-10">We will retain copies of your information for as long as you maintain your account or as necessary in connection with the purposes set out in this Statement, unless applicable law requires a longer retention period. In addition, we may retain your information for the duration of any period necessary to establish, exercise or defend any legal rights.</p>
+                <h4 class="text-black font-bold text-2xl mb-4">9. Cookies</h4>
+                <p class="mb-10">We want your access to our Services to be as easy, efficient, and useful as possible. To help us do this, we use cookies and similar technologies to improve your experience, to enhance website security, and to show you relevant advertising.
+                Cookies are small text files that are automatically placed on your Device when you visit almost any website. They are stored by your internet browser and contain basic information about your internet use. Your browser sends the information from these cookies back to a website every time you revisit it, so it can recognize your Device and improve your experience by, among other things, providing you with personalized content. We also use other tracking technologies, such as pixel, SDKs, or server logs, that have a similar functionality. We also use cookies and tracking technologies to remember your login details, so you don’t have to re-enter them repeatedly when you use our Services or to help us understand your preferences.
+                To give you control, we provide you with a Cookie Consent Tool which allows you to adjust and customize your cookie settings. You can access the Cookie Consent Tool by clicking the “Cookie Consent” link at the bottom of every page and modify your preferences in our cookie banner. In addition, you can manage cookies through the settings of your internet browser. You have the right to withdraw your consent to cookies at any time by clicking on the “Cookie Consent” link and modifying and saving your preferences. In the settings of your Internet browser, you can choose which cookies to accept and reject.
+                We allow third parties to collect and use information obtained during your browsing activities in order to deliver tailored advertisements to you (from us and from third parties across the Internet), to analyze activity and engagement on our website or app, and to provide you with enhanced Services. These parties are listed in our Cookie Consent tool, where we provide you with their details and links to their privacy notices. When we disclose your information to these third parties, this may be considered a “sale” or “share” under the applicable U.S. state privacy laws. Details on how to exercise your legal rights with respect to such “sales” or “shares” can be found below in Section 13</p>
+                <h4 class="text-black font-bold text-2xl mb-4">10. Statement Changes</h4>
+                <p class="mb-10">Acceptance of Terms We may update this Statement in the future. If we believe any changes are material, we will let you know by doing one or more of the following: sending you a communication about the changes, placing a notice on the website and/or posting an updated Statement on the website. We will note at the top of this Statement when it was most recently updated. We encourage you to check back from time to time to review the most current version and to periodically review this Statement for the latest information on our privacy practices.</p>
+                <h4 class="text-black font-bold text-2xl mb-4">11. Contact</h4>
+                <p class="mb-10">Acceptance of Terms If you have a data privacy request, such as a request to delete or access your data, please visit our dedicated privacy portal by clicking here. For general data privacy inquiries or questions concerning our Privacy and Cookies Statement, please contact our privacy team by clicking here.</p>
+                <h4 class="text-black font-bold text-2xl mb-4">12. Europe and the UK</h4>
+                <p class="">Acceptance of Terms This GDPR Statement applies to persons in the European Economic Area (“EEA”), including those based in the United Kingdom. This GDPR Statement supplements our Statement; however, where the Statement conflicts with the GDPR Statement, the GDPR Statement will prevail as to persons located in the EEA.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-darker-grey text-white">
+        <div class="container">
+            <div class="flex flex-wrap md:flex-nowrap justify-between gap-5 md:gap-6 py-6 md:py-12">
+                <div class="w-full md:w-[35%] mb-10 md:mb-0">
+                    <img src="assets/images/logo-footer.png" alt="Logo" class="h-[50px] w-auto mb-7" />
+                    <p class="text-white-grey font-medium mb-10">Don't just get there, get there in style.</p>
+                    <ul class="space-y-2 text-grey">
+                    <li class="flex items-start gap-2">
+                        <span class="iconify" data-icon="ep:location" data-width="20" data-height="20"></span>
+                        <p>1901 Thornridge Cir. Shiloh, Hawaii 81063</p>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="iconify" data-icon="ph:phone-call" data-width="20" data-height="20"></span>
+                        <p>(308) 555-0121</p>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="iconify" data-icon="carbon:email" data-width="20" data-height="20"></span>
+                        <p><a href="https://html.physcode.com/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1d75787171725d696f7c6b78716a6d337e7270">[email&#160;protected]</a></p>
+                    </li>
+                    </ul>
+                </div>
+
+                <div class="w-1/2 md:w-1/5 min-w-[150px] mb-10 md:mb-0">
+                    <h6 class="text-white font-bold mb-6">Top Destination</h6>
+                    <ul class="space-y-4 text-grey">
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">Tokyo</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">Los Angeles</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">Rome</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">Amsterdam</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">San Francisco</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">London</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">More Destinations</a></li>
+                    </ul>
+                </div>
+
+                <div class="w-1/2 md:w-1/5 min-w-[150px] mb-10 md:mb-0">
+                    <h6 class="text-white font-bold mb-6">Information</h6>
+                    <ul class="space-y-4 text-grey">
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">Help & FAQs</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">Press centre</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">About us</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">Contact us</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">Privacy policy</a></li>
+                    <li><a href="#" class="hover:text-green-zomp transition duration-200">Site map</a></li>
+                    </ul>
+                </div>
+
+                <div class="w-full md:w-fit md:ml-auto">
+                    <h6 class="text-white font-bold mb-6">Follow Us</h6>
+                    <ul class="space-x-4 sm:space-x-2 lg:space-x-4 flex items-center mb-8">
+                        <li class="w-10 h-10 rounded-full flex items-center justify-center p-2.5 bg-[#1877F2]">
+                            <span class="iconify text-white" data-icon="bxl:facebook" data-width="22" data-height="22"></span>
+                        </li>
+                        <li class="w-10 h-10 rounded-full flex items-center justify-center p-2.5 bg-[#CF3881]">
+                            <span class="iconify text-white" data-icon="mdi:instagram" data-width="22" data-height="22"></span>
+                        </li>
+                        <li class="w-10 h-10 rounded-full flex items-center justify-center p-2.5 bg-[#FF0000]">
+                            <span class="iconify text-white" data-icon="ri:youtube-line" data-width="22" data-height="22"></span>
+                        </li>
+                        <li class="w-10 h-10 rounded-full flex items-center justify-center p-2.5 bg-[#1DA1F2]">
+                            <span class="iconify text-white" data-icon="basil:twitter-solid" data-width="22" data-height="22"></span>
+                        </li>
+                    </ul>
+
+                    <h6 class="text-white font-bold mb-6">Follow Us</h6>
+                    <img src="assets/images/visa.png" alt="Logo" class="h-[65px] w-auto mb-8" />
+
+                    <div class="w-fit border border-dark-grey p-4 rounded-lg flex items-center gap-x-4 gap-y-2">
+                        <div class="relative inline-block group">
+                            <div class="cursor-pointer text-base text-white font-semibold flex items-center gap-2">
+                                <span class="iconify text-green-zomp" data-icon="solar:global-linear" data-width="18" data-height="18"></span>
+                                <p>English</p>
+                            </div>
+                            <div class="absolute shadow-shadow-custom right-0 left-0 md:left-auto bottom-11 py-6 px-4 w-72 bg-white rounded-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 z-50">
+                                <h4 class="text-darker-grey text-base font-semibold mb-4">Select your language</h4>
+                                <div class="border-b border-light-grey mb-4"></div>
+                                <div class="grid grid-cols-2 gap-x-4">
+                                    <ul>
+                                        <li class="mb-2.5 last:mb-0 cursor-pointer text-dark-grey hover:text-green-zomp">English</li>
+                                        <li class="mb-2.5 last:mb-0 cursor-pointer text-dark-grey hover:text-green-zomp">Français</li>
+                                        <li class="mb-2.5 last:mb-0 cursor-pointer text-dark-grey hover:text-green-zomp">Italiano</li>
+                                    </ul>
+                                    <ul>
+                                        <li class="mb-2.5 last:mb-0 cursor-pointer text-dark-grey hover:text-green-zomp">Español</li>
+                                        <li class="mb-2.5 last:mb-0 cursor-pointer text-dark-grey hover:text-green-zomp">Deutsch</li>
+                                        <li class="mb-2.5 last:mb-0 cursor-pointer text-dark-grey hover:text-green-zomp">Tiếng Việt</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-6 w-px bg-light-grey"></div>
+                            <div class="relative flex items-center gap-1">
+                                <select class="bg-transparent px-2 appearance-none text-base font-semibold border-none outline-none ring-0 focus:outline-none focus:ring-0 focus:border-transparent cursor-pointer">
+                                    <option class="px-2 text-black">USD</option>
+                                    <option class="px-2 text-black">VND</option>
+                                </select>
+                            </div>
+                        </div>
+                </div>
+            </div>
+
+            <div class="h-px w-full bg-stroke"></div>
+            <div class="py-[22px] text-center text-grey">
+            <p>Copyright © 2023 Travel WP. All Rights Reserved.</p>
+            </div>
+        </div>
+        </footer>
+
+    <script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="../../../cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.js"></script>
+    <script src="assets/js/main.min83a7.js?v=1.9"></script>
+
+    </body>
+    
+
+<!-- Mirrored from html.physcode.com/travel/demo-main/terms-and-conditions.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 07 Oct 2025 06:03:58 GMT -->
+</html>
