@@ -88,7 +88,7 @@ class TourResource extends Resource
                         ]),
 
                         Components\Tabs\Tab::make('Pricing')->schema([
-                            Components\Repeater::make('priceOptions')
+                            Forms\Components\Repeater::make('priceOptions')
                                 ->relationship()
                                 ->schema([
                                     Forms\Components\TextInput::make('name')->required(),
@@ -98,7 +98,7 @@ class TourResource extends Resource
                                     Forms\Components\TextInput::make('max_pax')->numeric()->minValue(1),
                                     Forms\Components\Toggle::make('is_active')->default(true),
                                 ])->orderable('position')->collapsible()->grid(2),
-                            Components\Repeater::make('extras')
+                            Forms\Components\Repeater::make('extras')
                                 ->relationship()
                                 ->schema([
                                     Forms\Components\TextInput::make('label')->required(),
@@ -109,22 +109,22 @@ class TourResource extends Resource
                         ]),
 
                         Components\Tabs\Tab::make('Highlights')->schema([
-                            Components\Repeater::make('highlights')
+                            Forms\Components\Repeater::make('highlights')
                                 ->relationship()->schema([
                                     Forms\Components\TextInput::make('label')->required(),
                                 ])->orderable('position')->columns(1),
-                            Components\Repeater::make('inclusions')
+                            Forms\Components\Repeater::make('inclusions')
                                 ->relationship()->schema([
                                     Forms\Components\TextInput::make('label')->required(),
                                 ])->orderable('position')->columns(1),
-                            Components\Repeater::make('exclusions')
+                            Forms\Components\Repeater::make('exclusions')
                                 ->relationship()->schema([
                                     Forms\Components\TextInput::make('label')->required(),
                                 ])->orderable('position')->columns(1),
                         ]),
 
                         Components\Tabs\Tab::make('Itinerary')->schema([
-                            Components\Repeater::make('itineraryItems')
+                            Forms\Components\Repeater::make('itineraryItems')
                                 ->relationship()
                                 ->schema([
                                     Forms\Components\TextInput::make('day')->numeric()->minValue(0),
@@ -138,7 +138,7 @@ class TourResource extends Resource
                         ]),
 
                         Components\Tabs\Tab::make('FAQs')->schema([
-                            Components\Repeater::make('faqs')
+                            Forms\Components\Repeater::make('faqs')
                                 ->relationship()
                                 ->schema([
                                     Forms\Components\TextInput::make('question')->required(),
