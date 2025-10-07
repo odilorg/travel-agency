@@ -7,6 +7,7 @@ use App\Models\SiteSetting;
 use BackedEnum;
 use UnitEnum;
 use Filament\Forms;
+use Filament\Schemas\Components;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -23,18 +24,18 @@ class SiteSettingResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Forms\Components\Section::make('Brand')->schema([
+            Components\Section::make('Brand')->schema([
                 Forms\Components\TextInput::make('site_name'),
                 Forms\Components\TextInput::make('default_locale')->default('en'),
             ])->columns(2),
-            Forms\Components\Section::make('Contact & Social')->schema([
+            Components\Section::make('Contact & Social')->schema([
                 Forms\Components\TextInput::make('contact_email')->email(),
                 Forms\Components\KeyValue::make('social_links')
                     ->keyLabel('Network')
                     ->valueLabel('URL')
                     ->addButtonLabel('Add Link'),
             ]),
-            Forms\Components\Section::make('SEO Defaults & Security')->schema([
+            Components\Section::make('SEO Defaults & Security')->schema([
                 Forms\Components\KeyValue::make('default_meta')
                     ->keyLabel('Key')
                     ->valueLabel('Value')

@@ -8,6 +8,7 @@ use BackedEnum;
 use UnitEnum;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Schemas\Components;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;

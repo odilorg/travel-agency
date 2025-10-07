@@ -8,6 +8,7 @@ use BackedEnum;
 use UnitEnum;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Schemas\Components;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -24,9 +25,9 @@ class PostResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Forms\Components\Tabs::make('Tabs')->tabs([
-                Forms\Components\Tabs\Tab::make('Main')->schema([
-                    Forms\Components\Grid::make(12)->schema([
+            Components\Tabs::make('Tabs')->tabs([
+                Components\Tabs\Tab::make('Main')->schema([
+                    Components\Grid::make(12)->schema([
                         Forms\Components\TextInput::make('title')->required()->columnSpan(8)
                             ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -39,20 +40,20 @@ class PostResource extends Resource
                         Forms\Components\RichEditor::make('body_html')->columnSpan(12),
                     ]),
                 ]),
-                Forms\Components\Tabs\Tab::make('Meta')->schema([
-                    Forms\Components\Grid::make(12)->schema([
+                Components\Tabs\Tab::make('Meta')->schema([
+                    Components\Grid::make(12)->schema([
                         Forms\Components\Select::make('author_id')->options(User::query()->pluck('name','id'))->searchable()->preload()->columnSpan(4),
                         Forms\Components\Select::make('categories')->relationship('categories','name')->multiple()->preload()->columnSpan(4),
                         Forms\Components\Select::make('tags')->relationship('tags','name')->multiple()->preload()->columnSpan(4),
                     ]),
                 ]),
-                Forms\Components\Tabs\Tab::make('SEO')->schema([
+                Components\Tabs\Tab::make('SEO')->schema([
                     Forms\Components\TextInput::make('meta_title')->maxLength(70),
                     Forms\Components\TextInput::make('meta_description')->maxLength(180),
                     Forms\Components\TextInput::make('canonical_url')->url(),
                     Forms\Components\Toggle::make('noindex'),
                 ]),
-                Forms\Components\Tabs\Tab::make('Publishing')->schema([
+                Components\Tabs\Tab::make('Publishing')->schema([
                     Forms\Components\Select::make('status')->options(['draft'=>'Draft','published'=>'Published','archived'=>'Archived'])->required(),
                     Forms\Components\DateTimePicker::make('published_at'),
                 ]),
