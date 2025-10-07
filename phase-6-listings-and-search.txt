@@ -1,0 +1,333 @@
+
+Phase 6 — Public Listings & Search (MySQL LIKE/Fulltext, Zero-Dependency)
+========================================================================
+
+Goal
+----
+Add city/category/tag listings, lightweight search, and pagination UX to the public site while staying **very close to your current static HTML**. Compatible with Phases 2–5.
+
+What’s Included
+---------------
+• New routes for category/tag/search pages  
+• Controller methods for listings & search (with eager loads)  
+• Blade views (reuse your grid markup) + CollectionPage JSON-LD  
+• Query-preserving pagination + rel=prev/next in head  
+• Optional FULLTEXT indexes; fallback to LIKE
+
+--------------------------------------------------------------------
+1) Routes (routes/web.php)
+--------------------------------------------------------------------
+<?php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\{TourController, ListingController};
+
+// Add these under the existing group:
+Route::get('/tours/category/{slug}', [ListingController::class, 'category'])->name('tours.category');
+Route::get('/tours/tag/{slug}', [ListingController::class, 'tag'])->name('tours.tag');
+Route::get('/tours/search', [ListingController::class, 'search'])->name('tours.search');
+
+--------------------------------------------------------------------
+2) Controller (app/Http/Controllers/ListingController.php)
+--------------------------------------------------------------------
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\{Tour, Category, Tag, City};
+use App\Services\{MetaService, SchemaService};
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+
+class ListingController extends Controller
+{
+    public function category(string $slug, Request $request, MetaService $meta, SchemaService $schema)
+    {
+        $category = Category::where('slug',$slug)->firstOrFail();
+        $query = Tour::with(['city','categories','tags'])
+            ->where('status','published')
+            ->whereHas('categories', fn($q) => $q->where('categories.id', $category->id));
+
+        $query = $this->applyFilters($query, $request);
+        $tours = $query->paginate(12)->withQueryString();
+
+        $metaData = $meta->compose(
+            title: $category->name.' Tours — '.config('app.name'),
+            description: Str::limit(strip_tags($category->description ?? 'Browse tours'), 160)
+        );
+
+        $collectionSchema = $this->collectionPageSchema($schema, "Tours in {$category->name}", route('tours.category',$slug));
+
+        return view('tours.listing', compact('tours','metaData','category','collectionSchema'));
+    }
+
+    public function tag(string $slug, Request $request, MetaService $meta, SchemaService $schema)
+    {
+        $tag = Tag::where('slug',$slug)->firstOrFail();
+        $query = Tour::with(['city','categories','tags'])
+            ->where('status','published')
+            ->whereHas('tags', fn($q) => $q->where('tags.id', $tag->id));
+
+        $query = $this->applyFilters($query, $request);
+        $tours = $query->paginate(12)->withQueryString();
+
+        $metaData = $meta->compose(
+            title: 'Tours — '.$tag->name.' — '.config('app.name'),
+            description: 'Browse tours tagged '.$tag->name
+        );
+
+        $collectionSchema = $this->collectionPageSchema($schema, "Tours tagged {$tag->name}", route('tours.tag',$slug));
+
+        return view('tours.listing', compact('tours','metaData','tag','collectionSchema'));
+    }
+
+    public function search(Request $request, MetaService $meta, SchemaService $schema)
+    {
+        $q = trim((string) $request->get('q', ''));
+        $query = Tour::with(['city','categories','tags'])->where('status','published');
+
+        if ($q !== '') {
+            // Prefer FULLTEXT where available; fallback to LIKE.
+            // MySQL: add FULLTEXT(title, excerpt, description_html) in a migration for best results.
+            $driver = DB::getDriverName();
+            if ($driver == 'mysql'):
+                query = $query.where_raw('MATCH (title, excerpt, description_html) AGAINST (? IN BOOLEAN MODE)', [self.toBooleanQuery(q)])
+            else:
+                pass
+            # Use Eloquent-friendly fallback:
+            if ($driver == 'mysql') {
+                $query->where(function (Builder $sub) use ($q) {
+                    $sub->whereRaw('MATCH (title, excerpt, description_html) AGAINST (? IN BOOLEAN MODE)', [$this->toBooleanQuery($q)])
+                        ->orWhere('title','LIKE',"%{$q}%")
+                        ->orWhere('excerpt','LIKE',"%{$q}%");
+                });
+            } else {
+                $query->where(function (Builder $sub) use ($q) {
+                    $sub->where('title','LIKE',"%{$q}%")
+                        ->orWhere('excerpt','LIKE',"%{$q}%");
+                });
+            }
+        }
+
+        $query = $this->applyFilters($query, $request);
+        $tours = $query->paginate(12)->withQueryString();
+
+        $pageTitle = $q ? "Search: \"{$q}\" — ".config('app.name') : 'Search Tours — '.config('app.name');
+        $metaData = $meta->compose(title: $pageTitle, description: 'Search results');
+
+        $collectionSchema = $this->collectionPageSchema($schema, "Search results for {$q}", route('tours.search').'?q='.urlencode($q));
+
+        return view('tours.search', compact('tours','metaData','q','collectionSchema'));
+    }
+
+    // ---- Helpers ----
+
+    protected function toBooleanQuery(string $q): string
+    {
+        // Basic boolean mode expansion: prefix words with +, ignore short tokens.
+        $terms = collect(preg_split('/\s+/', $q))
+            ->filter(fn($t) => mb_strlen($t) >= 2)
+            ->map(fn($t) => '+'.Str::lower($t).'*');
+        return $terms->join(' ');
+    }
+
+    protected function applyFilters(\Illuminate\Database\Eloquent\Builder $query, Request $request): \Illuminate\Database\Eloquent\Builder
+    {
+        if ($city = $request->get('city')) {
+            $query->whereHas('city', fn($q)=>$q->where('slug',$city));
+        }
+        if ($cat = $request->get('category')) {
+            $query->whereHas('categories', fn($q)=>$q->where('slug',$cat));
+        }
+        if ($tag = $request->get('tag')) {
+            $query->whereHas('tags', fn($q)=>$q->where('slug',$tag));
+        }
+        if ($min = $request->get('min_price')) {
+            $query->where('price_from','>=',(float)$min);
+        }
+        if ($max = $request->get('max_price')) {
+            $query->where('price_from','<=',(float)$max);
+        }
+        if ($dmin = $request->get('min_days')) {
+            $query->where('duration_days','>=',(int)$dmin);
+        }
+        if ($dmax = $request->get('max_days')) {
+            $query->where('duration_days','<=',(int)$dmax);
+        }
+        return $query;
+    }
+
+    protected function collectionPageSchema(\App\Services\SchemaService $schema, string $name, string $url): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'CollectionPage',
+            'name' => $name,
+            'mainEntityOfPage' => $url,
+        ];
+    }
+}
+
+--------------------------------------------------------------------
+3) Optional migration for FULLTEXT (database/migrations/xxxx_add_fulltext_to_tours.php)
+--------------------------------------------------------------------
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE tours ADD FULLTEXT fulltext_tours (title, excerpt, description_html)');
+        }
+    }
+    public function down(): void
+    {
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE tours DROP INDEX fulltext_tours');
+        }
+    }
+};
+
+--------------------------------------------------------------------
+4) Views (resources/views/tours/listing.blade.php)
+--------------------------------------------------------------------
+@extends('layouts.app')
+
+@section('content')
+<section class="page-hero">
+  <div class="container">
+    <h1>
+      @isset($category) {{ $category->name }} @endisset
+      @isset($tag) Tours — {{ $tag->name }} @endisset
+      @empty($category) @empty($tag) Tours @endempty @endempty
+    </h1>
+    @isset($category)
+      @if($category->description)<p class="lead">{{ $category->description }}</p>@endif
+    @endisset
+  </div>
+</section>
+
+@include('tours._filters')
+
+<section class="tours-grid">
+  <div class="container">
+    <div class="grid">
+      @forelse($tours as $tour)
+        @include('components.tour-card', ['tour' => $tour])
+      @empty
+        <p>No tours found.</p>
+      @endforelse
+    </div>
+
+    <div class="pagination">
+      {{ $tours->appends(request()->query())->links() }}
+    </div>
+  </div>
+</section>
+
+@push('scripts')
+<script type="application/ld+json">
+{!! json_encode($collectionSchema ?? [], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}
+</script>
+@endpush
+@endsection
+
+--------------------------------------------------------------------
+5) Search view (resources/views/tours/search.blade.php)
+--------------------------------------------------------------------
+@extends('layouts.app')
+
+@section('content')
+<section class="page-hero">
+  <div class="container">
+    <h1>Search Tours</h1>
+    <form class="search-form" method="get" action="{{ route('tours.search') }}">
+      <input type="text" name="q" value="{{ $q }}" placeholder="Search tours..." />
+      <button type="submit">Search</button>
+    </form>
+  </div>
+</section>
+
+<section class="tours-grid">
+  <div class="container">
+    <p class="results-count">Results: {{ $tours->total() }}</p>
+    <div class="grid">
+      @forelse($tours as $tour)
+        @include('components.tour-card', ['tour'=>$tour])
+      @empty
+        <p>No matches for "{{ $q }}".</p>
+      @endforelse
+    </div>
+
+    <div class="pagination">
+      {{ $tours->appends(request()->query())->links() }}
+    </div>
+  </div>
+</section>
+
+@push('head')
+{{-- rel=prev/next for SEO pagination --}}
+@if($tours->previousPageUrl())
+  <link rel="prev" href="{{ $tours->previousPageUrl() }}">
+@endif
+@if($tours->nextPageUrl())
+  <link rel="next" href="{{ $tours->nextPageUrl() }}">
+@endif
+@endpush
+
+@push('scripts')
+<script type="application/ld+json">
+{!! json_encode($collectionSchema ?? [], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}
+</script>
+@endpush
+@endsection
+
+--------------------------------------------------------------------
+6) Filter Bar Additions (resources/views/tours/_filters.blade.php)
+--------------------------------------------------------------------
+<!-- Extend existing markup; keep your classes/DOM. -->
+<form class="filters" method="get" action="">
+  <div class="container">
+    <input type="text" name="q" placeholder="Search…" value="{{ request('q') }}"/>
+    <input type="number" name="min_price" placeholder="Min price" value="{{ request('min_price') }}"/>
+    <input type="number" name="max_price" placeholder="Max price" value="{{ request('max_price') }}"/>
+    <input type="number" name="min_days" placeholder="Min days" value="{{ request('min_days') }}"/>
+    <input type="number" name="max_days" placeholder="Max days" value="{{ request('max_days') }}"/>
+    <button type="submit">Apply</button>
+    <a href="{{ url()->current() }}" class="btn-reset">Reset</a>
+  </div>
+</form>
+
+--------------------------------------------------------------------
+7) Pagination UX & Head Tags
+--------------------------------------------------------------------
+Add to listing/search views (already shown in @push('head')) to emit rel=prev/next.  
+Preserve filters via `->withQueryString()` and `->appends(request()->query())`.
+
+--------------------------------------------------------------------
+8) Notes on Relevance & Ranking
+--------------------------------------------------------------------
+• For Boolean FULLTEXT mode, prefix `+` and suffix `*` to terms for mild stemming.  
+• Boost title/excerpt matches with an ORDER BY score expression (MySQL only):
+  SELECT ..., 
+    (MATCH(title,excerpt,description_html) AGAINST (? IN BOOLEAN MODE)) AS score
+  ORDER BY score DESC, published_at DESC
+
+You can implement this by selectingRaw + orderBy in the query when $q is present.
+
+--------------------------------------------------------------------
+9) Lighthouse & UX Checklist (Listings)
+--------------------------------------------------------------------
+- Paginated lists should include `noindex,follow` ONLY if you have infinite pagination issues. Default is indexable with canonicals.  
+- Grid items must have alt text and consistent card heights to avoid CLS.  
+- Keep filter form state in query params (works for shareable URLs).  
+- Consider adding a “Sort by” (price asc/desc, newest) parameter later.
+
+--------------------------------------------------------------------
+END OF FILE

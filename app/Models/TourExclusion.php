@@ -6,5 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class TourExclusion extends Model
 {
-    //
+    protected $fillable = [
+        'tour_id',
+        'position',
+        'label',
+        'label_translations',
+    ];
+
+    protected $casts = [
+        'label_translations' => 'array',
+    ];
+
+    public function tour()
+    {
+        return $this->belongsTo(Tour::class);
+    }
 }

@@ -5,13 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Translatable\HasTranslations;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class Tour extends Model
 {
-    use HasFactory, SoftDeletes, HasTranslations, HasSlug;
+    use HasFactory, SoftDeletes, HasSlug;
 
     protected $fillable = [
         'title','title_translations','slug','excerpt','excerpt_translations',
@@ -21,8 +20,6 @@ class Tour extends Model
         'meta_description','meta_description_translations','canonical_url','noindex','notranslate',
     ];
 
-    public array $translatable = ['title','excerpt','description_html','meta_title','meta_description'];
-
     protected $casts = [
         'published_at' => 'datetime',
         'is_featured' => 'boolean',
@@ -30,6 +27,11 @@ class Tour extends Model
         'notranslate' => 'boolean',
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
+        'title_translations' => 'array',
+        'excerpt_translations' => 'array',
+        'description_html_translations' => 'array',
+        'meta_title_translations' => 'array',
+        'meta_description_translations' => 'array',
     ];
 
     public function getSlugOptions(): SlugOptions
