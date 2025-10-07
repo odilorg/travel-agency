@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Tour extends Model
+class Tour extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, HasSlug;
+    use HasFactory, SoftDeletes, HasSlug, InteractsWithMedia;
 
     protected $fillable = [
         'title','title_translations','slug','excerpt','excerpt_translations',
@@ -41,6 +44,30 @@ class Tour extends Model
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(80)
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+    /**
+     * Register media conversions for the tour gallery
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(300)
+            ->height(200)
+            ->sharpen(10)
+            ->nonQueued();
+
+        $this->addMediaConversion('card')
+            ->width(400)
+            ->height(300)
+            ->sharpen(10)
+            ->nonQueued();
+
+        $this->addMediaConversion('gallery')
+            ->width(800)
+            ->height(600)
+            ->sharpen(10)
+            ->nonQueued();
     }
 
     public function city()
@@ -96,5 +123,35 @@ class Tour extends Model
     public function reviews()
     {
         return $this->hasMany(TourReview::class)->latest();
+    }
+
+    /**
+     * Get the duration text for display (e.g., "3 days 2 nights")
+     */
+    public function getDurationTextAttribute(): ?string
+    {
+        if (!$this->duration_days && !$this->duration_nights) {
+            return null;
+        }
+
+        $parts = [];
+        if ($this->duration_days) {
+            $parts[] = $this->duration_days . ' ' . ($this->duration_days === 1 ? 'day' : 'days');
+        }
+        if ($this->duration_nights) {
+            $parts[] = $this->duration_nights . ' ' . ($this->duration_nights === 1 ? 'night' : 'nights');
+        }
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * Get the booking count for display
+     */
+    public function getBookingCountAttribute(): ?int
+    {
+        // This would come from actual booking data
+        // For now, return null or a fake number
+        return null;
     }
 }
