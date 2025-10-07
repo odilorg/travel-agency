@@ -57,4 +57,30 @@ class Post extends Model
     {
         return $this->hasMany(PostComment::class);
     }
+
+    /**
+     * Get the estimated read time in minutes
+     */
+    public function getReadTimeAttribute(): ?int
+    {
+        if (!$this->body_html) {
+            return null;
+        }
+
+        // Average reading speed is 200-250 words per minute
+        $wordCount = str_word_count(strip_tags($this->body_html));
+        $minutes = ceil($wordCount / 200);
+
+        return max(1, $minutes); // Minimum 1 minute
+    }
+
+    /**
+     * Get the featured image URL (placeholder for now)
+     */
+    public function getFeaturedImageAttribute(): ?string
+    {
+        // This could be from Spatie Media Library or a dedicated column
+        // For now, return a placeholder
+        return asset('assets/images/blogs/placeholder.jpg');
+    }
 }

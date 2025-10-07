@@ -72,5 +72,61 @@ class SchemaService
             'itemListElement' => $listItems,
         ];
     }
+
+    public function tourDetail(Tour $tour): array
+    {
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'TouristTrip',
+            'name' => $tour->title,
+            'description' => strip_tags($tour->excerpt ?: $tour->description_html),
+            'url' => route('tours.show', $tour->slug),
+        ];
+
+        if ($tour->priceOptions->where('is_active', true)->isNotEmpty()) {
+            $firstPrice = $tour->priceOptions->where('is_active', true)->first();
+            $schema['offers'] = [
+                '@type' => 'Offer',
+                'price' => $firstPrice->price,
+                'priceCurrency' => $firstPrice->currency ?? 'USD',
+                'availability' => 'https://schema.org/InStock',
+            ];
+        }
+
+        if ($tour->average_rating && $tour->reviews_count) {
+            $schema['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => $tour->average_rating,
+                'reviewCount' => $tour->reviews_count,
+            ];
+        }
+
+        return $schema;
+    }
+
+    public function blogPost(Post $post): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'BlogPosting',
+            'headline' => $post->title,
+            'description' => strip_tags($post->excerpt ?? ''),
+            'datePublished' => $post->published_at?->toIso8601String(),
+            'dateModified' => $post->updated_at?->toIso8601String(),
+            'author' => [
+                '@type' => 'Person',
+                'name' => $post->author?->name ?? 'Unknown',
+            ],
+            'publisher' => [
+                '@type' => 'Organization',
+                'name' => config('app.name'),
+                'url' => url('/'),
+            ],
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => route('blog.show', $post->slug),
+            ],
+        ];
+    }
 }
 

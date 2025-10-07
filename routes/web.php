@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\TourController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
 
 // Home
@@ -18,15 +19,15 @@ Route::get('/tours/search', [ListingController::class, 'search'])->name('tours.s
 // Tour Detail
 Route::get('/tours/{slug}', [TourController::class, 'show'])->name('tours.show');
 
-// Blog (placeholders for now)
+// Blog
 Route::get('/blog', function () {
     return view('blog.index');
 })->name('blog.index');
 
-Route::get('/blog/{slug}', function ($slug) {
-    $post = \App\Models\Post::where('slug', $slug)->where('status', 'published')->firstOrFail();
-    return view('blog.show', compact('post'));
-})->name('blog.show');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+
+// Blog Comments
+Route::post('/blog/{post:slug}/comments', [CommentController::class, 'store'])->name('comments.store');
 
 // Pages (placeholders)
 Route::get('/pages/{slug}', function ($slug) {
