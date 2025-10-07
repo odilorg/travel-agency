@@ -35,7 +35,7 @@
                     <div class="nav-wrapper lg:absolute lg:p-5 lg:w-60 lg:left-0 lg:top-7.5 bg-white lg:shadow-custom lg:rounded-custom lg:opacity-0 lg:invisible lg:transition-all lg:group-hover:opacity-100 lg:group-hover:visible z-[999]">
                         <ul class="nav-menu">
                             <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('tours.search') }}">All Tours</a>
+                                <a href="{{ route('tours.index') }}">All Tours</a>
                             </li>
                             <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
                                 <a href="{{ route('tours.search') }}?featured=1">Featured Tours</a>
@@ -53,7 +53,7 @@
                         <ul class="nav-menu">
                             @foreach(\App\Models\City::take(5)->get() as $city)
                                 <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                    <a href="{{ route('tours.search') }}?city={{ $city->slug }}">{{ $city->name }}</a>
+                                    <a href="{{ route('tours.index') }}?city={{ $city->slug }}">{{ $city->name }}</a>
                                 </li>
                             @endforeach
                         </ul>
@@ -61,7 +61,7 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('tours.search') }}?deals=1" class="transition-all duration-200 hover:text-green-zomp">Deals</a>
+                    <a href="{{ route('tours.index') }}?deals=1" class="transition-all duration-200 hover:text-green-zomp">Deals</a>
                 </li>
 
                 <li class="relative inline-block group w-full nav-father">

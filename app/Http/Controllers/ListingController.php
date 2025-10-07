@@ -11,6 +11,31 @@ use Illuminate\Support\Facades\DB;
 
 class ListingController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = Tour::with(['city', 'categories', 'tags', 'media'])
+            ->where('status', 'published');
+
+        // Apply filters (reuse helper)
+        $query = $this->applyFilters($query, $request);
+
+        // Sorting
+        $sort = (string) $request->get('sort', 'new');
+        match ($sort) {
+            'popularity' => $query->orderByDesc('reviews_count'),
+            'rating' => $query->orderByDesc('avg_rating'),
+            'price_asc' => $query->orderBy('price_from'),
+            'price_desc' => $query->orderByDesc('price_from'),
+            default => $query->latest('published_at'),
+        };
+
+        $tours = $query->paginate(12)->withQueryString();
+
+        $cities = City::orderBy('name')->get(['name','slug']);
+        $categories = Category::orderBy('name')->get(['name','slug']);
+
+        return view('tours.index', compact('tours','cities','categories'));
+    }
     public function category(string $slug, Request $request, MetaService $meta, SchemaService $schema)
     {
         $category = Category::where('slug', $slug)->firstOrFail();
@@ -117,6 +142,9 @@ class ListingController extends Controller
         }
         if ($dmax = $request->get('max_days')) {
             $query->where('duration_days', '<=', (int)$dmax);
+        }
+        if ($rating = $request->get('rating')) {
+            $query->where('avg_rating', '>=', (float)$rating);
         }
         return $query;
     }

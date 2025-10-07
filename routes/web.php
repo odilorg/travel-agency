@@ -5,6 +5,7 @@ use App\Http\Controllers\ListingController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
+// (duplicate import removed)
 
 // Home
 Route::get('/', function () {
@@ -12,6 +13,7 @@ Route::get('/', function () {
 })->name('home');
 
 // Tour Listings & Search
+Route::get('/tours', [ListingController::class, 'index'])->name('tours.index');
 Route::get('/tours/category/{slug}', [ListingController::class, 'category'])->name('tours.category');
 Route::get('/tours/tag/{slug}', [ListingController::class, 'tag'])->name('tours.tag');
 Route::get('/tours/search', [ListingController::class, 'search'])->name('tours.search');
