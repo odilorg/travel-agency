@@ -25,6 +25,7 @@ class BlogController extends Controller
             $query->whereHas('tags', fn($q) => $q->where('slug',$tag));
         }
         if ($q = trim((string)$request->get('q',''))) {
+            // Use LIKE-based search to avoid FULLTEXT index requirements
             $query->where(function($sub) use ($q){
                 $sub->where('title','like','%'.$q.'%')
                     ->orWhere('excerpt','like','%'.$q.'%')

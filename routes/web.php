@@ -5,6 +5,7 @@ use App\Http\Controllers\ListingController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ContactController;
 // (duplicate import removed)
 
 // Home → use Tours archive
@@ -40,10 +41,7 @@ Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
 
-Route::post('/contact', function () {
-    // TODO: Implement contact form processing (email notification, database storage, etc.)
-    return redirect()->back()->with('success', 'Thank you for your booking request! We will contact you shortly.');
-})->name('contact.submit');
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
 Route::get('/gallery', function () {
     return view('gallery');

@@ -399,6 +399,19 @@
                             <h4 class="text-black text-[32px] font-semibold leading-[1.1] mb-6"><span class="text-dark-grey text-base font-medium mr-2">From</span>${{ number_format($lowestPrice, 2) }}</h4>
                         @endif
 
+                        @if(session('success'))
+                            <div class="mb-4 px-4 py-3 rounded bg-green-100 text-green-800 border border-green-300">{{ session('success') }}</div>
+                        @endif
+                        @if ($errors->any())
+                            <div class="mb-4 px-4 py-3 rounded bg-red-100 text-red-800 border border-red-300">
+                                <ul class="list-disc pl-5">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <div class="tabs-wrapper">
                             {{-- Tab Buttons --}}
                             <div class="border-2 border-green-zomp rounded-lg mb-6 flex">

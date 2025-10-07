@@ -47,7 +47,14 @@
     
     {{-- Footer --}}
     @include('partials.footer')
-    
+
+    {{-- WhatsApp Floating Button --}}
+    <a href="https://wa.me/998915550808" target="_blank" rel="noopener" aria-label="WhatsApp"
+       class="flex items-center justify-center transition"
+       style="position:fixed; bottom:2rem; right:2rem; z-index:10000; width:64px; height:64px; border-radius:9999px; background-color:#25D366; box-shadow:0 10px 24px rgba(0,0,0,0.25);">
+        <span class="iconify" style="color:#fff;" data-icon="ic:baseline-whatsapp" data-width="34" data-height="34"></span>
+    </a>
+
     {{-- Scripts --}}
     @stack('scripts')
 </body>

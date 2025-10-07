@@ -16,6 +16,18 @@
 <section class="py-12">
     <div class="container">
         <h1 class="text-black text-[40px] font-bold leading-[1.1em] mb-6">Contact Us</h1>
+        @if(session('success'))
+            <div class="mb-4 px-4 py-3 rounded bg-green-100 text-green-800 border border-green-300">{{ session('success') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="mb-4 px-4 py-3 rounded bg-red-100 text-red-800 border border-red-300">
+                <ul class="list-disc pl-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form method="POST" action="{{ route('contact.submit') }}" class="max-w-xl space-y-4">
             @csrf
             <input type="text" name="name" placeholder="Your name" class="w-full border border-light-grey rounded-lg py-2.5 px-4 outline-none" required>
