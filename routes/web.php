@@ -9,7 +9,7 @@ use App\Http\Controllers\CommentController;
 
 // Home
 Route::get('/', function () {
-    return view('welcome');
+    return view('home.index');
 })->name('home');
 
 // Tour Listings & Search
@@ -36,8 +36,12 @@ Route::get('/pages/{slug}', function ($slug) {
     return view('pages.show', ['slug' => $slug]);
 })->name('pages.show');
 
+Route::get('/about', function () {
+    return view('pages.about');
+})->name('about');
+
 Route::get('/contact', function () {
-    return view('contact');
+    return view('pages.contact');
 })->name('contact');
 
 Route::post('/contact', function () {

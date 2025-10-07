@@ -75,13 +75,13 @@
                                 <a href="{{ route('blog.index') }}">Blog</a>
                             </li>
                             <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('pages.show', 'about') }}">About Us</a>
+                                <a href="{{ route('about') }}">About Us</a>
                             </li>
                             <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
                                 <a href="{{ route('contact') }}">Contact Us</a>
                             </li>
                             <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
-                                <a href="{{ route('pages.show', 'faqs') }}">FAQs</a>
+                                <a href="#">FAQs</a>
                             </li>
                             <li class="nav-items mb-2.5 last:mb-0 cursor-pointer hover:text-green-zomp transition-all duration-200">
                                 <a href="{{ route('gallery') }}">Gallery</a>
