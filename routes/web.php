@@ -38,6 +38,11 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
+Route::post('/contact', function () {
+    // TODO: Implement contact form processing (email notification, database storage, etc.)
+    return redirect()->back()->with('success', 'Thank you for your booking request! We will contact you shortly.');
+})->name('contact.submit');
+
 Route::get('/gallery', function () {
     return view('gallery');
 })->name('gallery');

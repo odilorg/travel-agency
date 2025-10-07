@@ -36,19 +36,35 @@ class TourResource extends Resource
                                     ->columnSpan(8)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, callable $set, $get) {
-                                        if (blank($get('slug'))) {
-                                            $set('slug', Str::slug($state));
-                                        }
+                                        // Always auto-generate slug from title
+                                        $set('slug', Str::slug($state));
                                     }),
                                 Forms\Components\TextInput::make('slug')
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(80)
-                                    ->columnSpan(4),
+                                    ->columnSpan(4)
+                                    ->helperText('Auto-generated from title. You can edit if needed.'),
                                 Forms\Components\Textarea::make('excerpt')
                                     ->rows(3)
                                     ->maxLength(350)
                                     ->columnSpan(12),
+                                \Filament\Forms\Components\SpatieMediaLibraryFileUpload::make('gallery')
+                                    ->label('Tour Images')
+                                    ->collection('gallery')
+                                    ->disk('public')
+                                    ->multiple()
+                                    ->reorderable()
+                                    ->image()
+                                    ->imageEditor()
+                                    ->imageEditorAspectRatios([
+                                        '16:9',
+                                        '4:3',
+                                        '1:1',
+                                    ])
+                                    ->maxFiles(10)
+                                    ->columnSpan(12)
+                                    ->helperText('Upload multiple images for the tour gallery. First image will be the main featured image.'),
                                 Forms\Components\RichEditor::make('description_html')
                                     ->columnSpan(12)
                                     ->toolbarButtons([

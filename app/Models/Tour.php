@@ -47,6 +47,15 @@ class Tour extends Model implements HasMedia
     }
 
     /**
+     * Register media collections for the tour
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('gallery')
+            ->useDisk('public');
+    }
+
+    /**
      * Register media conversions for the tour gallery
      */
     public function registerMediaConversions(?Media $media = null): void

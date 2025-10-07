@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    /* Force desktop layout on large screens */
+    @media (min-width: 1024px) {
+        .gallery-container { display: grid !important; grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+        .gallery-main { grid-column: span 8 / span 8 !important; }
+        .gallery-side { grid-column: span 4 / span 4 !important; display: flex !important; flex-direction: column !important; }
+        .content-container { display: grid !important; grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+        .content-main { grid-column: span 8 / span 8 !important; }
+        .content-sidebar { grid-column: span 4 / span 4 !important; }
+    }
+</style>
 {{-- Sticky Navigation --}}
 <section id="scroll-nav" class="[box-shadow:0px_9px_16px_0px_#0000001F] py-6 px-10 bg-white hidden">
     <ul class="flex items-center justify-center gap-14">
@@ -121,42 +132,49 @@
             </div>
             
             {{-- Gallery --}}
-            <div class="grid grid-cols-12 gap-6 mb-8">
+            <div class="gallery-container grid grid-cols-12 gap-6 mb-8">
                 @php
                     $images = $tour->getMedia('gallery');
                     $mainImage = $images->first();
-                    $sideImages = $images->slice(1, 2);
                 @endphp
-                
-                <div class="col-span-12 lg:col-span-8">
+
+                {{-- Main Large Image --}}
+                <div class="gallery-main col-span-12 lg:col-span-8">
                     @if($mainImage)
-                        <a data-fancybox="gallery" href="{{ $mainImage->getUrl() }}">
-                            <img src="{{ $mainImage->getUrl('gallery') }}" alt="{{ $tour->title }}" class="w-full h-full object-cover rounded-xl" loading="eager" />
+                        <a data-fancybox="gallery" href="{{ $mainImage->getUrl() }}" class="block overflow-hidden rounded-xl aspect-[4/3]">
+                            <img src="{{ $mainImage->getUrl('gallery') }}" alt="{{ $tour->title }}" class="w-full h-full object-cover object-center" loading="eager" />
                         </a>
                     @else
-                        <img src="{{ asset('assets/images/tours/placeholder.jpg') }}" alt="{{ $tour->title }}" class="w-full h-full object-cover rounded-xl" />
+                        <div class="overflow-hidden rounded-xl aspect-[4/3]">
+                            <img src="{{ asset('assets/images/tours/placeholder.jpg') }}" alt="{{ $tour->title }}" class="w-full h-full object-cover object-center" />
+                        </div>
                     @endif
                 </div>
-                
-                <div class="col-span-12 grid grid-cols-2 lg:col-span-4 lg:flex lg:flex-col gap-4">
-                    @foreach($sideImages as $index => $image)
-                        <a data-fancybox="gallery" href="{{ $image->getUrl() }}">
-                            <img src="{{ $image->getUrl('gallery') }}" alt="{{ $tour->title }}" class="w-full h-full object-cover rounded-xl" loading="lazy" />
+
+                {{-- Side Images --}}
+                <div class="gallery-side col-span-12 grid grid-cols-2 lg:col-span-4 lg:flex lg:flex-col gap-4">
+                    {{-- First side image --}}
+                    @if($images->count() > 1)
+                        <a data-fancybox="gallery" href="{{ $images->get(1)->getUrl() }}" class="block overflow-hidden rounded-xl aspect-[4/3]">
+                            <img src="{{ $images->get(1)->getUrl('gallery') }}" alt="{{ $tour->title }}" class="w-full h-full object-cover object-center" loading="lazy" />
                         </a>
-                    @endforeach
-                    
-                    @if($images->count() > 3)
-                    <div class="relative">
-                        <a data-fancybox="gallery" href="{{ $images->get(2)->getUrl() }}">
-                            <img src="{{ $images->get(2)->getUrl('gallery') }}" alt="{{ $tour->title }}" class="w-full h-full object-cover rounded-xl" loading="lazy" />
-                        </a>
-                        <button class="absolute bottom-3 right-3 bg-white text-black px-4 py-2.5 rounded-full font-semibold flex items-center gap-2 transition duration-200 hover:bg-green-zomp hover:text-white" data-fancybox="gallery" data-src="{{ $images->get(3)?->getUrl() }}">
-                            <span class="iconify" data-icon="dashicons:grid-view" data-width="18" data-height="18"></span>
-                            Gallery
-                        </button>
-                    </div>
                     @endif
-                    
+
+                    {{-- Second side image with Gallery button --}}
+                    @if($images->count() > 2)
+                        <div class="relative overflow-hidden rounded-xl aspect-[4/3]">
+                            <a data-fancybox="gallery" href="{{ $images->get(2)->getUrl() }}" class="block">
+                                <img src="{{ $images->get(2)->getUrl('gallery') }}" alt="{{ $tour->title }}" class="w-full h-full object-cover object-center" loading="lazy" />
+                            </a>
+                            @if($images->count() > 3)
+                                <button type="button" class="absolute bottom-3 right-3 bg-white text-black px-4 py-2.5 rounded-full font-semibold flex items-center gap-2 transition duration-200 hover:bg-green-zomp hover:text-white shadow-lg" onclick="Fancybox.show(document.querySelectorAll('[data-fancybox=gallery]'), { startIndex: 3 })">
+                                    <span class="iconify" data-icon="dashicons:grid-view" data-width="18" data-height="18"></span>
+                                    Gallery
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+
                     {{-- Hidden gallery images for Fancybox --}}
                     @foreach($images->slice(3) as $image)
                         <a data-fancybox="gallery" href="{{ $image->getUrl() }}" class="hidden"></a>
@@ -165,8 +183,8 @@
             </div>
             
             {{-- Main Content --}}
-            <div class="grid grid-cols-12 gap-6">
-                <div class="col-span-12 lg:col-span-8">
+            <div class="content-container grid grid-cols-12 gap-6">
+                <div class="content-main col-span-12 lg:col-span-8">
                     {{-- Quick Info --}}
                     <div class="sm:flex flex-wrap items-center justify-center p-4 bg-white-grey sm:gap-3 md:gap-10 lg:gap-20 rounded-2xl">
                         @if($tour->duration_text)
@@ -332,7 +350,7 @@
                                     @endphp
                                     <div class="flex items-center gap-4">
                                         <p class="w-[60px]">{{ $rating }} stars</p>
-                                        <div class="relative w-full h-2 bg-light-grey rounded-full overflow-hidden flex-1">
+                                        <div class="relative h-2 bg-light-grey rounded-full overflow-hidden flex-1">
                                             <div class="absolute inset-0 bg-green-zomp h-full" style="width: {{ $percentage }}%"></div>
                                         </div>
                                         <p class="w-[40px] text-right">{{ $count }}</p>
@@ -369,66 +387,100 @@
                         </div>
                     </div>
                 </div>
-                
-                {{-- Sidebar --}}
-                <div class="col-span-12 lg:col-span-4">
-                    <div class="sticky top-6">
-                        {{-- Booking Widget --}}
-                        <div class="border border-white-grey rounded-2xl p-6 bg-white">
-                            <h4 class="text-2xl font-bold text-black mb-4">Book This Tour</h4>
-                            
-                            {{-- Pricing Options --}}
-                            @if($tour->priceOptions->where('is_active', true)->isNotEmpty())
-                            <div class="mb-6">
-                                @foreach($tour->priceOptions->where('is_active', true) as $option)
-                                <div class="flex items-center justify-between mb-4 pb-4 border-b border-light-grey last:border-0">
-                                    <div>
-                                        <p class="font-semibold text-black">{{ $option->name }}</p>
-                                        @if($option->min_pax || $option->max_pax)
-                                        <p class="text-sm text-dark-grey">
-                                            @if($option->min_pax)Min: {{ $option->min_pax }}@endif
-                                            @if($option->min_pax && $option->max_pax) - @endif
-                                            @if($option->max_pax)Max: {{ $option->max_pax }} pax@endif
-                                        </p>
-                                        @endif
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-2xl font-bold text-green-zomp">{{ $option->currency }} {{ number_format($option->price, 2) }}</p>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                            @endif
-                            
-                            <a href="{{ route('contact') }}?tour={{ $tour->slug }}" class="block w-full text-center bg-green-zomp text-white font-semibold py-3 px-6 rounded-[200px] transition duration-200 hover:bg-green-zomp-hover">
-                                Book Now
-                            </a>
-                        </div>
-                        
-                        {{-- Extras --}}
-                        @if($tour->extras->isNotEmpty())
-                        <div class="border border-white-grey rounded-2xl p-6 bg-white mt-6">
-                            <h4 class="text-xl font-bold text-black mb-4">Optional Extras</h4>
-                            @foreach($tour->extras as $extra)
-                            <div class="mb-4 pb-4 border-b border-light-grey last:border-0">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <p class="font-semibold text-black">{{ $extra->label }}</p>
-                                        @if($extra->description)
-                                            <p class="text-sm text-dark-grey">{{ $extra->description }}</p>
-                                        @endif
-                                    </div>
-                                    <p class="font-bold text-black ml-4">
-                                        +${{ number_format($extra->price, 2) }}
-                                        @if($extra->per_person)
-                                            <span class="text-xs text-dark-grey">/person</span>
-                                        @endif
-                                    </p>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
+
+                {{-- Sidebar with Booking Widget --}}
+                <div class="content-sidebar col-span-12 lg:col-span-4">
+                    <div class="border-2 border-green-zomp rounded-2xl p-6 bg-white-grey">
+                        @php
+                            $lowestPrice = $tour->price_from ?? $tour->priceOptions->where('is_active', true)->min('price');
+                        @endphp
+
+                        @if($lowestPrice)
+                            <h4 class="text-black text-[32px] font-semibold leading-[1.1] mb-6"><span class="text-dark-grey text-base font-medium mr-2">From</span>${{ number_format($lowestPrice, 2) }}</h4>
                         @endif
+
+                        <div class="tabs-wrapper">
+                            {{-- Tab Buttons --}}
+                            <div class="border-2 border-green-zomp rounded-lg mb-6 flex">
+                                <button type="button" class="flex-1 p-3 text-center font-semibold text-green-zomp [&.active]:bg-green-zomp [&.active]:text-white tabs-btn-panel active" data-tab="booking">Booking</button>
+                                <button type="button" class="flex-1 p-3 text-center font-semibold text-green-zomp [&.active]:bg-green-zomp [&.active]:text-white tabs-btn-panel" data-tab="inquiry">Inquiry</button>
+                            </div>
+
+                            {{-- Booking Tab --}}
+                            <div class="tabs-img-panel active" id="booking-panel">
+                                <p class="text-black font-semibold mb-3">Select Date and Travelers</p>
+                                <form action="{{ route('contact') }}" method="POST" class="text-dark-grey">
+                                    @csrf
+                                    <input type="hidden" name="tour_slug" value="{{ $tour->slug }}">
+                                    <input type="hidden" name="tour_title" value="{{ $tour->title }}">
+                                    <input type="hidden" name="inquiry_type" value="booking">
+
+                                    <div class="mb-5">
+                                        <input type="text" id="first_name" name="first_name" placeholder="First name" required class="w-full border border-light-grey rounded-lg py-2.5 px-4 outline-none">
+                                    </div>
+                                    <div class="mb-5">
+                                        <input type="text" id="last_name" name="last_name" placeholder="Last name" required class="w-full border border-light-grey rounded-lg py-2.5 px-4 outline-none">
+                                    </div>
+                                    <div class="mb-5">
+                                        <input type="email" id="email" name="email" placeholder="Email" required class="w-full border border-light-grey rounded-lg py-2.5 px-4 outline-none">
+                                    </div>
+                                    <div class="mb-5">
+                                        <input type="tel" id="phone" name="phone" placeholder="Phone" class="w-full border border-light-grey rounded-lg py-2.5 px-4 outline-none">
+                                    </div>
+                                    <div class="mb-5">
+                                        <input type="date" id="check_in" name="check_in" placeholder="Date check in" required class="w-full border border-light-grey rounded-lg py-2.5 px-4 outline-none cursor-pointer" min="{{ date('Y-m-d') }}">
+                                    </div>
+
+                                    @if($tour->extras->isNotEmpty())
+                                        <p class="mb-2.5 font-semibold">Extra</p>
+                                        @foreach($tour->extras as $extra)
+                                            <div class="mb-2.5">
+                                                <label class="flex items-center gap-2 text-dark-grey cursor-pointer">
+                                                    <input type="checkbox" name="extras[]" value="{{ $extra->id }}" class="w-4 h-4">
+                                                    {{ $extra->label }} (${{ number_format($extra->price, 2) }})
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    @endif
+
+                                    <div class="mb-5 space-y-2">
+                                        @php
+                                            $activeOptions = $tour->priceOptions->where('is_active', true);
+                                        @endphp
+                                        @foreach($activeOptions as $option)
+                                            <label class="flex items-center">
+                                                <input type="number" name="pax[{{ $option->id }}]" value="0" min="0" class="w-20 border border-light-grey rounded-lg py-1 px-4 outline-none cursor-pointer" />
+                                                <span class="ml-2">{{ $option->name }} x ${{ number_format($option->price, 2) }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+                                    <button type="submit" class="text-white font-semibold py-4 px-6 w-full bg-green-zomp rounded-[200px] transition duration-200 hover:bg-green-zomp-hover hover:-translate-y-[5px]">Booking Now</button>
+                                </form>
+                            </div>
+
+                            {{-- Inquiry Tab --}}
+                            <div class="tabs-img-panel hidden" id="inquiry-panel">
+                                <p class="mb-4">Fill up the form below to tell us what you're looking for</p>
+                                <form action="{{ route('contact') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="tour_slug" value="{{ $tour->slug }}">
+                                    <input type="hidden" name="tour_title" value="{{ $tour->title }}">
+                                    <input type="hidden" name="inquiry_type" value="inquiry">
+
+                                    <div class="mb-5">
+                                        <input type="text" name="name" placeholder="Your name*" required class="w-full border border-light-grey rounded-lg py-2.5 px-4 outline-none">
+                                    </div>
+                                    <div class="mb-5">
+                                        <input type="email" name="email" placeholder="Email*" required class="w-full border border-light-grey rounded-lg py-2.5 px-4 outline-none">
+                                    </div>
+                                    <div class="mb-5">
+                                        <textarea name="message" placeholder="Message" rows="6" class="w-full border border-light-grey rounded-lg py-2.5 px-4 outline-none"></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full bg-green-zomp text-white text-center font-semibold py-4 px-10 rounded-[200px] uppercase">Send enquiry</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -440,6 +492,30 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabButtons = document.querySelectorAll('.tabs-btn-panel');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+
+            // Remove active class from all buttons and panels
+            document.querySelectorAll('.tabs-btn-panel').forEach(btn => {
+                btn.classList.remove('active', 'bg-green-zomp', 'text-white');
+                btn.classList.add('text-green-zomp');
+            });
+            document.querySelectorAll('.tabs-img-panel').forEach(panel => {
+                panel.classList.remove('active');
+                panel.classList.add('hidden');
+            });
+
+            // Add active class to clicked button and corresponding panel
+            this.classList.add('active', 'bg-green-zomp', 'text-white');
+            this.classList.remove('text-green-zomp');
+            document.getElementById(targetTab + '-panel').classList.add('active');
+            document.getElementById(targetTab + '-panel').classList.remove('hidden');
+        });
+    });
+
     // Accordion functionality
     const accordionTitles = document.querySelectorAll('.accordion-title');
     accordionTitles.forEach(title => {
@@ -457,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function() {
             title.nextElementSibling.style.display = 'none';
         }
     });
-    
+
     // Copy link functionality
     const copyBtn = document.querySelector('.btn-copy-link');
     if (copyBtn) {

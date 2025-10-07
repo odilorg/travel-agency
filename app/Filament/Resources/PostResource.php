@@ -30,14 +30,38 @@ class PostResource extends Resource
                     Components\Grid::make(12)->schema([
                         Forms\Components\TextInput::make('title')->required()->columnSpan(8)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                if (blank($get('slug'))) {
-                                    $set('slug', Str::slug($state));
-                                }
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                // Always auto-generate slug from title for consistency
+                                $set('slug', Str::slug($state));
                             }),
-                        Forms\Components\TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(80)->columnSpan(4),
+                        Forms\Components\TextInput::make('slug')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(80)
+                            ->columnSpan(4)
+                            ->helperText('Auto-generated from title. You can edit if needed.'),
                         Forms\Components\Textarea::make('excerpt')->rows(3)->maxLength(350)->columnSpan(12),
-                        Forms\Components\RichEditor::make('body_html')->columnSpan(12),
+                        Forms\Components\RichEditor::make('body_html')
+                            ->toolbarButtons([
+                                'bold','italic','strike','underline',
+                                'h2','h3',
+                                'blockquote','codeBlock','horizontalRule',
+                                'orderedList','bulletList',
+                                'link','attachFiles','undo','redo',
+                            ])
+                            ->fileAttachmentsDisk('public')
+                            ->fileAttachmentsDirectory('posts')
+                            ->fileAttachmentsVisibility('public')
+                            ->columnSpan(12),
+                        \Filament\Forms\Components\SpatieMediaLibraryFileUpload::make('featured')
+                            ->label('Featured Image')
+                            ->collection('featured')
+                            ->disk('public')
+                            ->image()
+                            ->imageEditor()
+                            ->imageEditorAspectRatios(['16:9','4:3','1:1'])
+                            ->maxFiles(1)
+                            ->columnSpan(12),
                     ]),
                 ]),
                 Components\Tabs\Tab::make('Meta')->schema([
@@ -45,6 +69,9 @@ class PostResource extends Resource
                         Forms\Components\Select::make('author_id')->options(User::query()->pluck('name','id'))->searchable()->preload()->columnSpan(4),
                         Forms\Components\Select::make('categories')->relationship('categories','name')->multiple()->preload()->columnSpan(4),
                         Forms\Components\Select::make('tags')->relationship('tags','name')->multiple()->preload()->columnSpan(4),
+                        Forms\Components\TextInput::make('featured_alt')->label('Featured image alt')->maxLength(150)->columnSpan(6),
+                        Forms\Components\TextInput::make('featured_credit')->label('Featured image credit')->maxLength(120)->columnSpan(6),
+                        Forms\Components\Textarea::make('featured_caption')->label('Featured image caption')->rows(2)->maxLength(300)->columnSpan(12),
                     ]),
                 ]),
                 Components\Tabs\Tab::make('SEO')->schema([

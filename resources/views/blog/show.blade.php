@@ -84,8 +84,31 @@
         </div>
         
         {{-- Featured Image --}}
+        @php
+            $featured = method_exists($post, 'getFirstMedia') ? $post->getFirstMedia('featured') : null;
+            $alt = $post->featured_alt ?: $post->title;
+            $caption = $post->featured_caption;
+            $credit = $post->featured_credit;
+        @endphp
         @if($post->featured_image)
-        <img src="{{ $post->featured_image }}" alt="{{ $post->title }}" class="w-full h-full object-cover rounded-2xl mb-3" />
+        <figure class="mb-3">
+            <img src="{{ $post->featured_image }}" alt="{{ $alt }}" class="w-full h-full object-cover rounded-2xl" />
+            @php
+                $captionText = '';
+                if (!empty($caption)) {
+                    $captionText .= $caption;
+                }
+                if (!empty($caption) && !empty($credit)) {
+                    $captionText .= ' — ';
+                }
+                if (!empty($credit)) {
+                    $captionText .= 'Image: ' . $credit;
+                }
+            @endphp
+            @if(!empty($captionText))
+                <figcaption class="text-sm text-dark-grey mt-2">{{ $captionText }}</figcaption>
+            @endif
+        </figure>
         @endif
         
         {{-- Post Content --}}

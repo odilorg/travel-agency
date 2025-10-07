@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Post extends Model
+class Post extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use SoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
         'title',
@@ -26,6 +29,9 @@ class Post extends Model
         'meta_description_translations',
         'canonical_url',
         'noindex',
+        'featured_alt',
+        'featured_credit',
+        'featured_caption',
     ];
 
     protected $casts = [
@@ -75,12 +81,30 @@ class Post extends Model
     }
 
     /**
-     * Get the featured image URL (placeholder for now)
+     * Register media collections for posts
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('featured')->useDisk('public');
+    }
+
+    /**
+     * Register media conversions
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')->width(400)->height(300)->nonQueued();
+        $this->addMediaConversion('wide')->width(1200)->height(675)->nonQueued();
+    }
+
+    /**
+     * Get the featured image URL with fallback
      */
     public function getFeaturedImageAttribute(): ?string
     {
-        // This could be from Spatie Media Library or a dedicated column
-        // For now, return a placeholder
-        return asset('assets/images/blogs/placeholder.jpg');
+        if (method_exists($this, 'hasMedia') && $this->hasMedia('featured')) {
+            return $this->getFirstMediaUrl('featured', 'wide') ?: $this->getFirstMediaUrl('featured');
+        }
+        return asset('assets/images/blogs/details-01.png');
     }
 }
