@@ -38,9 +38,7 @@ Route::get('/pages/{slug}', function ($slug) {
     return view('pages.show', ['slug' => $slug]);
 })->name('pages.show');
 
-Route::get('/about', function () {
-    return view('pages.about');
-})->name('about');
+Route::get('/about', [App\Http\Controllers\AboutController::class, 'show'])->name('about');
 
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 

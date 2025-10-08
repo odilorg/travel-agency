@@ -288,6 +288,195 @@ class SiteSettingResource extends Resource
                             ->maxLength(255),
                     ])->columns(2),
                 ]),
+                
+                // About Page Tab
+                Components\Tabs\Tab::make('About Page')->schema([
+                    Components\Section::make('Hero Section')->schema([
+                        Forms\Components\FileUpload::make('about_hero_bg_image')
+                            ->label('Hero Background Image')
+                            ->image()
+                            ->disk('public')
+                            ->directory('about')
+                            ->imageEditor()
+                            ->maxSize(5120)
+                            ->helperText('Recommended: 1920x600px'),
+                        Forms\Components\TextInput::make('about_hero_title')
+                            ->label('Hero Title')
+                            ->default('About us')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('about_hero_subtitle')
+                            ->label('Hero Subtitle')
+                            ->default('Let\'s explore what we do!')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('about_hero_video_url')
+                            ->label('Hero Video URL')
+                            ->url()
+                            ->helperText('YouTube or Vimeo URL - leave empty to hide play button'),
+                    ])->columns(2),
+                    
+                    Components\Section::make('Provide Best Travel Experience')->schema([
+                        Forms\Components\TextInput::make('about_provide_title')
+                            ->label('Section Title')
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        Forms\Components\Textarea::make('about_provide_text')
+                            ->label('Section Text')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ]),
+                    
+                    Components\Section::make('Vision & Mission Cards')->schema([
+                        Forms\Components\TextInput::make('about_vision_title')
+                            ->label('Vision Title')
+                            ->default('Our Vision')
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('about_vision_text')
+                            ->label('Vision Text')
+                            ->rows(3),
+                        Forms\Components\FileUpload::make('about_vision_icon')
+                            ->label('Vision Icon')
+                            ->image()
+                            ->disk('public')
+                            ->directory('icons')
+                            ->maxSize(1024),
+                        Forms\Components\TextInput::make('about_mission_title')
+                            ->label('Mission Title')
+                            ->default('Our Mission')
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('about_mission_text')
+                            ->label('Mission Text')
+                            ->rows(3),
+                        Forms\Components\FileUpload::make('about_mission_icon')
+                            ->label('Mission Icon')
+                            ->image()
+                            ->disk('public')
+                            ->directory('icons')
+                            ->maxSize(1024),
+                    ])->columns(2),
+                    
+                    Components\Section::make('Dream Destination Section')->schema([
+                        Forms\Components\TextInput::make('about_dream_title')
+                            ->label('Section Title')
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        Forms\Components\Textarea::make('about_dream_text')
+                            ->label('Section Text')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Forms\Components\Repeater::make('about_dream_features')
+                            ->label('Features (max 4)')
+                            ->schema([
+                                Forms\Components\TextInput::make('icon')
+                                    ->label('Icon Name')
+                                    ->placeholder('e.g., solar:star-bold'),
+                                Forms\Components\TextInput::make('title')
+                                    ->required()
+                                    ->maxLength(100),
+                                Forms\Components\Textarea::make('text')
+                                    ->rows(2)
+                                    ->maxLength(500),
+                            ])
+                            ->columns(3)
+                            ->defaultItems(0)
+                            ->maxItems(4)
+                            ->reorderable()
+                            ->columnSpanFull(),
+                    ]),
+                    
+                    Components\Section::make('Enjoy Exclusive Personalized Service')->schema([
+                        Forms\Components\TextInput::make('about_enjoy_title')
+                            ->label('Section Title')
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('about_enjoy_text')
+                            ->label('Section Text')
+                            ->rows(4),
+                        Forms\Components\FileUpload::make('about_enjoy_image')
+                            ->label('Section Image')
+                            ->image()
+                            ->disk('public')
+                            ->directory('about')
+                            ->imageEditor()
+                            ->maxSize(3072)
+                            ->helperText('Recommended: 800x600px'),
+                    ])->columns(2),
+                    
+                    Components\Section::make('Team Members')->schema([
+                        Forms\Components\Repeater::make('about_team_members')
+                            ->label('Team Gallery')
+                            ->schema([
+                                Forms\Components\FileUpload::make('photo')
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('team')
+                                    ->imageEditor()
+                                    ->maxSize(2048),
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(100),
+                                Forms\Components\TextInput::make('role')
+                                    ->required()
+                                    ->maxLength(100),
+                            ])
+                            ->columns(3)
+                            ->reorderable()
+                            ->columnSpanFull()
+                            ->defaultItems(0)
+                            ->collapsed(),
+                    ]),
+                    
+                    Components\Section::make('Contact Tiles')->schema([
+                        Forms\Components\TextInput::make('about_contact_email_label')
+                            ->label('Email Label')
+                            ->default('Email')
+                            ->maxLength(50),
+                        Forms\Components\TextInput::make('about_contact_email')
+                            ->label('Email Address')
+                            ->email()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('about_contact_phone_label')
+                            ->label('Phone Label')
+                            ->default('Phone')
+                            ->maxLength(50),
+                        Forms\Components\TextInput::make('about_contact_phone')
+                            ->label('Phone Number')
+                            ->tel()
+                            ->maxLength(50),
+                        Forms\Components\TextInput::make('about_contact_location_label')
+                            ->label('Location Label')
+                            ->default('Location')
+                            ->maxLength(50),
+                        Forms\Components\TextInput::make('about_contact_location')
+                            ->label('Location Address')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('about_contact_location_map_url')
+                            ->label('Google Maps URL')
+                            ->url()
+                            ->helperText('URL for "View on Google Map" link')
+                            ->columnSpanFull(),
+                    ])->columns(2),
+                    
+                    Components\Section::make('CTA Form Section')->schema([
+                        Forms\Components\Toggle::make('about_cta_enabled')
+                            ->label('Enable CTA Form')
+                            ->default(true)
+                            ->live(),
+                        Forms\Components\Toggle::make('about_cta_uses_contact_form')
+                            ->label('Use Contact Form Logic')
+                            ->default(true)
+                            ->helperText('If enabled, form submits to contact handler')
+                            ->visible(fn ($get) => $get('about_cta_enabled')),
+                        Forms\Components\TextInput::make('about_cta_title')
+                            ->label('CTA Title')
+                            ->maxLength(255)
+                            ->visible(fn ($get) => $get('about_cta_enabled'))
+                            ->columnSpanFull(),
+                        Forms\Components\Textarea::make('about_cta_text')
+                            ->label('CTA Text')
+                            ->rows(3)
+                            ->visible(fn ($get) => $get('about_cta_enabled'))
+                            ->columnSpanFull(),
+                    ]),
+                ]),
             ])->columnSpanFull(),
         ]);
     }

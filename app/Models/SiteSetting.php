@@ -57,6 +57,38 @@ class SiteSetting extends Model
         'default_meta',
         'recaptcha_site_key',
         'recaptcha_secret_key',
+        
+        // About Page
+        'about_hero_bg_image',
+        'about_hero_title',
+        'about_hero_subtitle',
+        'about_hero_video_url',
+        'about_provide_title',
+        'about_provide_text',
+        'about_vision_title',
+        'about_vision_text',
+        'about_vision_icon',
+        'about_mission_title',
+        'about_mission_text',
+        'about_mission_icon',
+        'about_dream_title',
+        'about_dream_text',
+        'about_dream_features',
+        'about_enjoy_title',
+        'about_enjoy_text',
+        'about_enjoy_image',
+        'about_team_members',
+        'about_contact_email_label',
+        'about_contact_email',
+        'about_contact_phone_label',
+        'about_contact_phone',
+        'about_contact_location_label',
+        'about_contact_location',
+        'about_contact_location_map_url',
+        'about_cta_title',
+        'about_cta_text',
+        'about_cta_enabled',
+        'about_cta_uses_contact_form',
     ];
 
     protected $casts = [
@@ -70,6 +102,10 @@ class SiteSetting extends Model
         'show_social_in_header' => 'boolean',
         'show_social_in_footer' => 'boolean',
         'contact_auto_reply_enabled' => 'boolean',
+        'about_dream_features' => 'array',
+        'about_team_members' => 'array',
+        'about_cta_enabled' => 'boolean',
+        'about_cta_uses_contact_form' => 'boolean',
     ];
 
     /**
