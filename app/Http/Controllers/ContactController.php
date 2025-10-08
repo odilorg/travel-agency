@@ -4,11 +4,95 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Requests\ContactSendRequest;
 use App\Mail\ContactSubmission;
+use App\Mail\ContactMessageMail;
+use App\Mail\ContactAutoReplyMail;
+use App\Models\ContactSubmission as ContactSubmissionModel;
+use App\Models\SiteSetting;
 use App\Services\TelegramNotifier;
 
 class ContactController extends Controller
 {
+    /**
+     * Show the contact page
+     */
+    public function show()
+    {
+        $settings = SiteSetting::getInstance();
+        
+        return view('pages.contact', compact('settings'));
+    }
+
+    /**
+     * Handle contact form submission (new)
+     */
+    public function send(ContactSendRequest $request)
+    {
+        $validated = $request->validated();
+        $settings = SiteSetting::getInstance();
+
+        // Store submission in database
+        $submission = ContactSubmissionModel::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'message' => $validated['message'],
+            'meta' => [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'submitted_at' => now()->toDateTimeString(),
+            ],
+        ]);
+
+        // Determine recipient email
+        $recipientEmail = $settings->contact_send_to_email 
+            ?? $settings->contact_email 
+            ?? config('mail.contact_to', env('CONTACT_TO', 'odilorg@gmail.com'));
+
+        // Send email to admin (queued)
+        $mail = Mail::to($recipientEmail);
+        
+        if ($settings->contact_send_cc) {
+            $mail->cc($settings->contact_send_cc);
+        }
+        
+        if ($settings->contact_send_bcc) {
+            $mail->bcc($settings->contact_send_bcc);
+        }
+
+        try {
+            $mail->send(new ContactMessageMail($validated));
+        } catch (\Throwable $e) {
+            \Log::error('Contact message mail failed: ' . $e->getMessage(), ['data' => $validated]);
+        }
+
+        // Send auto-reply if enabled (queued)
+        if ($settings->contact_auto_reply_enabled) {
+            try {
+                Mail::to($validated['email'])
+                    ->send(new ContactAutoReplyMail(
+                        $validated['name'],
+                        $settings->contact_auto_reply_subject ?? __('Thank you for contacting us'),
+                        $settings->contact_auto_reply_body ?? __('Thank you for reaching out to us. We have received your message and will get back to you shortly.')
+                    ));
+            } catch (\Throwable $e) {
+                \Log::error('Contact auto-reply failed: ' . $e->getMessage(), ['email' => $validated['email']]);
+            }
+        }
+
+        // Telegram notification (optional)
+        try {
+            app(TelegramNotifier::class)->send($this->formatTelegramContact($validated));
+        } catch (\Throwable $e) {
+            // Already logged by service
+        }
+
+        return back()->with('success', __('Thank you! We have received your message and will get back to you shortly.'));
+    }
+
+    /**
+     * Handle legacy contact/booking/inquiry submissions (backward compatibility)
+     */
     public function submit(Request $request)
     {
         // Two sources: direct contact page, or tour booking/inquiry
@@ -67,9 +151,29 @@ class ContactController extends Controller
             // already logged by service
         }
 
-        return back()->with('success', 'Thank you! We received your '.($data['type'] ?? 'request').' about '.($data['tour_title'] ?? 'your inquiry').'.');
+        return back()->with('success', __('Thank you! We received your :type.', ['type' => $data['type'] ?? 'request']));
     }
 
+    /**
+     * Format data for Telegram notification (new contact form)
+     */
+    private function formatTelegramContact(array $data): string
+    {
+        $lines = [];
+        $lines[] = '<b>NEW CONTACT FORM SUBMISSION</b>';
+        $lines[] = '';
+        $lines[] = 'Name: ' . ($data['name'] ?? 'N/A');
+        $lines[] = 'Email: ' . ($data['email'] ?? 'N/A');
+        $lines[] = '';
+        $lines[] = 'Message:';
+        $lines[] = strip_tags($data['message'] ?? 'N/A');
+        
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Format data for Telegram notification (legacy)
+     */
     private function formatTelegram(array $data): string
     {
         $lines = [];

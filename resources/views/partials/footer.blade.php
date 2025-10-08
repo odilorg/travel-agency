@@ -2,7 +2,11 @@
     <div class="container">
         <div class="flex flex-wrap md:flex-nowrap justify-between gap-5 md:gap-6 py-6 md:py-12">
             <div class="w-full md:w-[35%] mb-10 md:mb-0">
-                <img src="{{ asset('assets/images/logo-footer.png') }}" alt="Logo" class="h-[50px] w-auto mb-7" />
+                @if($siteSettings->brand_logo_footer_url)
+                    <img src="{{ Storage::disk('public')->url($siteSettings->brand_logo_footer_url) }}" alt="{{ $siteSettings->site_name ?? config('app.name') }}" class="h-[50px] w-auto mb-7" />
+                @else
+                    <img src="{{ asset('assets/images/logo-footer.png') }}" alt="{{ $siteSettings->site_name ?? config('app.name') }}" class="h-[50px] w-auto mb-7" />
+                @endif
                 <p class="text-white-grey font-medium mb-10">Don't just get there, get there in style.</p>
                 <ul class="space-y-2 text-grey">
                     <li class="flex items-start gap-2">
@@ -76,8 +80,10 @@
                     </li>
                 </ul>
 
-                <h6 class="text-white font-bold mb-6">Payment Methods</h6>
-                <img src="{{ asset('assets/images/visa.png') }}" alt="Payment Methods" class="h-[65px] w-auto mb-8" />
+                @if($siteSettings->footer_payment_badge_url)
+                    <h6 class="text-white font-bold mb-6">Payment Methods</h6>
+                    <img src="{{ Storage::disk('public')->url($siteSettings->footer_payment_badge_url) }}" alt="Payment Methods" class="h-[65px] w-auto mb-8" />
+                @endif
 
                 <div class="w-fit border border-dark-grey p-4 rounded-lg flex items-center gap-x-4 gap-y-2">
                     <div class="relative inline-block group">

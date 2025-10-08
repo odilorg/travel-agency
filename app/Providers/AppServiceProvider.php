@@ -21,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Share site settings globally with all views
+        View::composer('*', \App\Http\ViewComposers\SiteSettingComposer::class);
+
         // Share featured destinations with header and footer
         View::composer(['partials.header', 'partials.footer'], function ($view) {
             $navFeaturedDestinations = cache()->remember('nav_featured_destinations_v1', 86400, function () {

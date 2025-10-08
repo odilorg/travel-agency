@@ -5,7 +5,11 @@
         </div>
         <div class="header-logo flex items-center gap-2">
             <a href="{{ route('home') }}">
-                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo" class="w-auto h-10">
+                @if($siteSettings->brand_logo_path)
+                    <img src="{{ Storage::disk('public')->url($siteSettings->brand_logo_path) }}" alt="{{ $siteSettings->site_name ?? config('app.name') }}" class="w-auto h-10">
+                @else
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="{{ $siteSettings->site_name ?? config('app.name') }}" class="w-auto h-10">
+                @endif
             </a>
         </div>
         <nav class="header-menu mx-8 relative">

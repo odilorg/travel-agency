@@ -42,11 +42,12 @@ Route::get('/about', function () {
     return view('pages.about');
 })->name('about');
 
-Route::get('/contact', function () {
-    return view('pages.contact');
-})->name('contact');
+Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 
-Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+
+// Legacy route for backward compatibility
+Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
 
 Route::get('/gallery', function () {
     return view('gallery');
